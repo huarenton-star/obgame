@@ -1,724 +1,557 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#0f1117;color:#e8eaf0;height:100vh;font-size:13px;line-height:1.5;overflow:hidden;display:flex;flex-direction:column}
+.app{display:flex;flex:1;overflow:hidden}
+.sb{width:200px;min-width:200px;background:#161b27;border-right:1px solid #2a3349;display:flex;flex-direction:column;overflow-y:auto}
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.sbs{padding:10px 12px;border-bottom:1px solid #2a3349}
+.sbl{font-size:9px;font-weight:600;color:#5a6478;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.ptn{font-size:16px;font-weight:700}
+.pts{font-size:11px;color:#8892a4;margin-top:2px}
+.bdg{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:5px}
+.by{background:#2e200a;color:#f59e0b;border:1px solid #5a3a0a}
+.br{background:#2e0a0a;color:#ef4444;border:1px solid #5a1212}
+.bg{background:#0a2e1a;color:#22c55e;border:1px solid #0a3a1a}
+.vg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.vc{background:#1e2535;border-radius:8px;border:1px solid #2a3349;padding:7px 8px}
+.vcl{font-size:9px;font-weight:600;color:#5a6478;text-transform:uppercase}
+.vcv{font-size:16px;font-weight:700;margin-top:1px}
+.red{color:#ef4444}.grn{color:#22c55e}.vcu{font-size:9px;color:#5a6478}
+.scb{background:#1e2535;border:1px solid #2a3349;border-radius:8px;padding:9px 10px}
+.scr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.scn{font-size:20px;font-weight:700;color:#22c55e}
+.sct{height:4px;background:#252d40;border-radius:2px;overflow:hidden}
+.scf{height:100%;border-radius:2px;background:#22c55e}
+.phb{background:#1e2535;border:1px solid #2a3349;border-radius:8px;padding:9px 10px}
+.pds{display:flex;gap:4px;margin-top:5px}
+.pd{width:7px;height:7px;border-radius:50%;background:#3a4566}
+.pd.dn{background:#22c55e}.pd.ac{background:#2dd4bf}
+.dl{display:flex;flex-direction:column;gap:4px}
+.di{background:#1e2535;border:1px solid #2a3349;border-radius:8px;padding:7px 10px;cursor:pointer;font-size:11px;text-align:left;color:#8892a4;width:100%}
+.di:hover{border-color:#2dd4bf;color:#2dd4bf}
+.tb{padding:9px 16px;border-bottom:1px solid #2a3349;background:#161b27;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tp{font-size:12px;font-weight:600;color:#2dd4bf}
+.tt{font-size:12px;color:#8892a4}
+.sa{flex:1;overflow-y:auto;padding:16px}
+.cd{background:#161b27;border:1px solid #2a3349;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.ct{font-size:13px;font-weight:700;margin-bottom:8px}
+.cb{font-size:12px;color:#8892a4;line-height:1.75}
+.al{border-radius:8px;padding:9px 13px;font-size:12px;margin-bottom:10px}
+.ar{background:#2e0a0a;border:1px solid #5a1212;color:#fca5a5}
+.ay{background:#2e200a;border:1px solid #5a3a0a;color:#fcd34d}
+.ab{background:#0a1a2e;border:1px solid #1a2a4a;color:#93c5fd}
+.ag{background:#0a2e1a;border:1px solid #0a3a1a;color:#86efac}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px}
+.cbtn{background:#1e2535;border:1px solid #3a4566;border-radius:8px;padding:9px 12px;color:#e8eaf0;font-size:12px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:flex-start;gap:7px;line-height:1.5;width:100%}
+.cbtn:hover{background:#252d40;border-color:#2dd4bf;color:#2dd4bf}
+.cbtn.used{opacity:0.4;cursor:default;pointer-events:none}
+.rt{width:100%;border-collapse:collapse}
+.rt tr{border-bottom:1px solid #2a3349}
+.rt tr:last-child{border-bottom:none}
+.rt td{padding:5px 2px;font-size:11px;color:#8892a4}
+.rt td:last-child{text-align:right;font-weight:600}
+.hi{color:#ef4444}.lo{color:#f59e0b}.ok{color:#22c55e}.nm{color:#e8eaf0}
+.rs{font-size:9px;font-weight:600;color:#5a6478;text-transform:uppercase;padding:6px 2px 3px}
+.qc{background:#161b27;border:2px solid #2dd4bf;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.qq{font-size:13px;font-weight:600;color:#2dd4bf;margin-bottom:12px;line-height:1.6}
+.qo{display:flex;flex-direction:column;gap:6px}
+.qb{background:#1e2535;border:1px solid #3a4566;border-radius:8px;padding:9px 13px;cursor:pointer;font-size:12px;text-align:left;color:#e8eaf0;width:100%}
+.qb:hover{border-color:#60a5fa;color:#60a5fa}
+.qb.cor{background:#0a2e1a;border-color:#22c55e;color:#86efac;pointer-events:none}
+.qb.wrg{background:#2e0a0a;border-color:#ef4444;color:#fca5a5;pointer-events:none}
+.qb.rev{background:#0a2e1a;border-color:#22c55e;color:#86efac;opacity:0.7;pointer-events:none}
+.qb.off{pointer-events:none}
+.nb{background:#2dd4bf;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;color:#0a2020;cursor:pointer;margin-top:10px;display:block}
+.gb{background:#1e2535;border:1px solid #3a4566;border-radius:8px;padding:8px 16px;font-size:12px;color:#8892a4;cursor:pointer}
+.gb:hover{color:#e8eaf0;border-color:#8892a4}
+.sp{display:inline-flex;gap:4px}
+.sp span{width:5px;height:5px;background:#2dd4bf;border-radius:50%;animation:bk 1.2s infinite}
+.sp span:nth-child(2){animation-delay:0.2s}
+.sp span:nth-child(3){animation-delay:0.4s}
+@keyframes bk{0%{opacity:0.2}40%{opacity:1}80%{opacity:0.2}100%{opacity:0.2}}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100}
+.ob{background:#161b27;border:1px solid #3a4566;border-radius:12px;padding:18px;width:360px;max-height:80vh;overflow-y:auto}
+</style>
+</head><body>
 
-// ── Constants ──────────────────────────────────────────────────────────────
-const DIFFICULTY = [
-  { id: "student", label: "醫學生", en: "Medical Student", icon: "🟢" },
-  { id: "resident", label: "住院醫師", en: "Resident", icon: "🟡" },
-  { id: "attending", label: "主治醫師", en: "Attending", icon: "🔴" },
-];
+<div id="menu" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;padding:20px">
+  <div style="text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">🏥</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:4px">產科急症模擬遊戲</div>
+    <div style="font-size:12px;color:#8892a4">OB Emergency Simulator</div>
+  </div>
+  <div style="width:100%;max-width:340px">
+    <div style="font-size:11px;color:#5a6478;margin-bottom:8px">選擇難度</div>
+    <div style="display:flex;flex-direction:column;gap:7px" id="dbts">
+      <button class="cbtn" onclick="selD('student',this)">🟢 醫學生</button>
+      <button class="cbtn" onclick="selD('resident',this)">🟡 住院醫師</button>
+      <button class="cbtn" onclick="selD('attending',this)">🔴 主治醫師</button>
+    </div>
+  </div>
+  <div style="width:100%;max-width:340px">
+    <div style="font-size:11px;color:#5a6478;margin-bottom:8px">選擇關卡</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button class="cbtn" onclick="go('pe')">💊 子癇前症 / HELLP</button>
+      <button class="cbtn" onclick="go('pp')">🩸 前置胎盤</button>
+      <button class="cbtn" onclick="go('ai')">🤖 AI 動態生成</button>
+    </div>
+  </div>
+</div>
 
-const CHAPTERS = [
-  { id: "first_trimester", num: 1, title: "孕早期急症", en: "First Trimester", color: "#E1F5EE", border: "#5DCAA5", text: "#085041", icon: "🌱",
-    cases: [
-      { id: "abortion", title: "各類型流產", en: "Abortion", available: false },
-      { id: "ectopic", title: "子宮外孕", en: "Ectopic Pregnancy", available: false },
-      { id: "hg", title: "妊娠劇吐症", en: "Hyperemesis Gravidarum", available: false },
-      { id: "molar", title: "葡萄胎", en: "Molar Pregnancy", available: false },
-    ]},
-  { id: "second_trimester", num: 2, title: "孕中晚期出血", en: "2nd & 3rd Trimester Bleeding", color: "#FAECE7", border: "#F0997B", text: "#4A1B0C", icon: "🩸",
-    cases: [
-      { id: "abruption", title: "胎盤早剝", en: "Placental Abruption", available: false },
-      { id: "placenta_previa", title: "前置胎盤", en: "Placenta Previa", available: true },
-      { id: "vasa_previa", title: "前置血管破裂", en: "Vasa Previa", available: false },
-      { id: "ptl", title: "早產與早期破水", en: "PTL & PPROM", available: false },
-      { id: "chorioamnionitis", title: "絨毛膜羊膜炎", en: "Chorioamnionitis", available: false },
-      { id: "fgr", title: "胎兒生長遲滯", en: "FGR/IUGR", available: false },
-    ]},
-  { id: "hypertensive", num: 3, title: "妊娠高血壓", en: "Hypertensive & Medical", color: "#E6F1FB", border: "#85B7EB", text: "#042C53", icon: "💊",
-    cases: [
-      { id: "preeclampsia", title: "子癇前症", en: "Preeclampsia / HELLP", available: true },
-      { id: "eclampsia", title: "子癇症", en: "Eclampsia", available: false },
-      { id: "gdm", title: "妊娠期糖尿病", en: "GDM", available: false },
-      { id: "pyelo", title: "急性腎盂腎炎", en: "Acute Pyelonephritis", available: false },
-    ]},
-  { id: "intrapartum", num: 4, title: "產程急症", en: "Intrapartum Emergencies", color: "#FAEEDA", border: "#EF9F27", text: "#412402", icon: "⚡",
-    cases: [
-      { id: "fetal_distress", title: "胎兒窘迫", en: "Fetal Distress", available: false },
-      { id: "shoulder", title: "肩難產", en: "Shoulder Dystocia", available: false },
-      { id: "cord_prolapse", title: "臍帶脫垂", en: "Cord Prolapse", available: false },
-      { id: "uterine_rupture", title: "子宮破裂", en: "Uterine Rupture", available: false },
-      { id: "afe", title: "羊水栓塞", en: "Amniotic Fluid Embolism", available: false },
-      { id: "arrest", title: "產程遲滯", en: "Arrest of Labor", available: false },
-    ]},
-  { id: "postpartum", num: 5, title: "產後併發症", en: "Postpartum Complications", color: "#EEEDFE", border: "#AFA9EC", text: "#26215C", icon: "🏥",
-    cases: [
-      { id: "pph", title: "產後大出血", en: "Postpartum Hemorrhage", available: false },
-      { id: "accreta", title: "胎盤植入/殘留", en: "Placenta Accreta", available: false },
-      { id: "endometritis", title: "產褥熱", en: "Postpartum Endometritis", available: false },
-      { id: "dvt", title: "深靜脈血栓/肺栓塞", en: "DVT / PE", available: false },
-    ]},
-];
+<div id="game" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+<div class="app">
+  <div class="sb">
+    <div class="sbs">
+      <div class="sbl">Patient</div>
+      <div class="ptn" id="ptn">—</div>
+      <div class="pts" id="pts">—</div>
+      <div id="ptb" style="margin-top:5px"></div>
+    </div>
+    <div class="sbs">
+      <div class="sbl">母體生命徵象</div>
+      <div class="vg">
+        <div class="vc"><div class="vcl">BP</div><div class="vcv red" id="vbp">—</div><div class="vcu">mmHg</div></div>
+        <div class="vc"><div class="vcl">HR</div><div class="vcv" id="vhr">—</div><div class="vcu">bpm</div></div>
+        <div class="vc"><div class="vcl">RR</div><div class="vcv" id="vrr">—</div><div class="vcu">/min</div></div>
+        <div class="vc"><div class="vcl">SpO2</div><div class="vcv grn" id="vsp">—</div><div class="vcu">%</div></div>
+      </div>
+    </div>
+    <div class="sbs">
+      <div class="sbl">胎兒</div>
+      <div class="vg">
+        <div class="vc"><div class="vcl">FHR</div><div class="vcv grn" id="vfh">—</div><div class="vcu">bpm</div></div>
+        <div class="vc"><div class="vcl">GA</div><div class="vcv" style="font-size:13px" id="vga">—</div><div class="vcu">週</div></div>
+      </div>
+    </div>
+    <div class="sbs">
+      <div class="sbl">臨床積分</div>
+      <div class="scb">
+        <div class="scr"><span style="font-size:11px;color:#8892a4">處置評分</span><span class="scn" id="scn">100</span></div>
+        <div class="sct"><div class="scf" id="scf" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="sbs">
+      <div class="sbl">遊戲進度</div>
+      <div class="phb">
+        <div style="font-size:11px;color:#8892a4" id="phl">—</div>
+        <div class="pds" id="pds"></div>
+      </div>
+    </div>
+    <div class="sbs" style="flex:1">
+      <div class="sbl">已完成檢查</div>
+      <div class="dl" id="dl"></div>
+    </div>
+    <div style="padding:10px 12px;margin-top:auto">
+      <button class="gb" style="width:100%;font-size:11px" onclick="back()">← 回主選單</button>
+      <div style="font-size:9px;color:#5a6478;margin-top:8px;line-height:1.6">AI 根據 ACOG/UpToDate 評分</div>
+    </div>
+  </div>
+  <div class="mn">
+    <div class="tb"><div class="tp" id="tp">🏥 急診</div><div class="tt" id="tt">—</div></div>
+    <div class="sa" id="sa"></div>
+  </div>
+</div>
+</div>
 
-const FIXED_CASES = {
-  placenta_previa: {
-    id: "placenta_previa", title: "前置胎盤 Placenta Previa",
-    chief: "29歲 G2P1，孕34週，急診主訴：無痛性陰道大量出血，約一片衛生棉，無腹痛。\n29F G2P1, 34wk GA, CC: painless heavy vaginal bleeding (~1 pad), no abdominal pain.",
-    vitals: "BP 110/70 | HR 98 | SpO2 98% | T 36.8°C | RR 18",
-    diagnosis: "前置胎盤 Placenta Previa",
-    steps: [
-      { prompt: "第一步：您會先做什麼？（可多選）\nStep 1: What are your first actions? (multi-select)",
-        options: [
-          { id: "iv", text: "建立靜脈通路 IV access + CBC / type & screen", correct: true, result: "✅ 建立兩條大口徑靜脈通路。Hb 9.2, Plt 185k, PT/PTT normal, Blood type O+." },
-          { id: "pelvic", text: "立即內診 Pelvic exam", correct: false, result: "❌ 危險！前置胎盤禁止內診，可能引發致命大出血！" },
-          { id: "toco", text: "胎心音監測 Continuous FHR monitoring", correct: true, result: "✅ FHR 140 bpm，reassuring，無明顯減速。" },
-          { id: "us", text: "腹部超音波 Abdominal ultrasound", correct: true, result: "✅ 完全性前置胎盤，BPP 8/8，頭位。" },
-        ], mustPick: ["iv","us"] },
-      { prompt: "第二步：出血持續，BP 90/60。下一步？\nStep 2: Bleeding continues, BP drops to 90/60. Next?",
-        options: [
-          { id: "transfuse", text: "輸血 Transfuse pRBC 2 units", correct: true, result: "✅ 輸血維持 Hb >8。" },
-          { id: "tocolysis", text: "子宮收縮抑制劑 Tocolysis", correct: false, result: "❌ 活動性出血+血壓不穩，不宜使用。" },
-          { id: "betamethasone", text: "類固醇 Betamethasone 12mg IM", correct: true, result: "✅ 34週促胎肺成熟。" },
-          { id: "cs", text: "緊急剖腹產 Emergency C-section", correct: true, result: "✅ 血流動力學不穩+大出血→立即剖腹產。" },
-        ], mustPick: ["transfuse","cs"] },
-    ],
-    outcome: "母嬰均平安。新生兒 Apgar 8/9，送 NICU 觀察。術中出血 800mL，術後穩定。",
+<div class="ov" id="ov" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="ob">
+    <button onclick="document.getElementById('ov').style.display='none'" style="float:right;background:none;border:none;color:#8892a4;font-size:16px;cursor:pointer">x</button>
+    <div id="oc"></div>
+  </div>
+</div>
+
+<script>
+var API = 'https://api.anthropic.com/v1/messages';
+var MODEL = 'claude-sonnet-4-6';
+var G = { diff: 'resident', cid: null, score: 100, done: {}, qs: {} };
+
+function nstSVG() {
+  var g = '';
+  for (var i = 0; i < 6; i++) g += '<line x1="' + (i*86) + '" y1="0" x2="' + (i*86) + '" y2="85" stroke="#2a3349" stroke-width="0.5"/>';
+  for (var j = 0; j < 3; j++) g += '<line x1="0" y1="' + (15+j*25) + '" x2="520" y2="' + (15+j*25) + '" stroke="#2a3349" stroke-width="0.5"/>';
+  return '<svg viewBox="0 0 520 85" style="width:100%;height:85px;display:block">'
+    + '<rect width="520" height="85" fill="#252d40" rx="4"/>' + g
+    + '<text x="4" y="17" font-size="8" fill="#5a6478">160</text>'
+    + '<text x="4" y="42" font-size="8" fill="#5a6478">140</text>'
+    + '<text x="4" y="67" font-size="8" fill="#5a6478">120</text>'
+    + '<polyline fill="none" stroke="#22c55e" stroke-width="1.5" points="15,42 40,38 65,41 80,36 100,33 112,29 122,26 132,29 142,36 155,41 170,42 190,39 210,37 230,41 250,43 265,40 275,36 285,31 295,28 305,31 315,37 328,41 345,40 365,41 385,39 405,42 425,40 445,42 465,40 490,42 510,41"/>'
+    + '<rect x="108" y="20" width="48" height="28" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2" rx="2" opacity="0.7"/>'
+    + '<rect x="268" y="20" width="52" height="28" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2" rx="2" opacity="0.7"/>'
+    + '<text x="109" y="58" font-size="7" fill="#22c55e">accel x1</text>'
+    + '<text x="269" y="58" font-size="7" fill="#22c55e">accel x2</text>'
+    + '</svg>';
+}
+
+function mkTable(rows) {
+  var h = '<table class="rt">';
+  rows.forEach(function(r) {
+    if (r.length === 1) {
+      h += '<tr><td class="rs" colspan="2">' + r[0] + '</td></tr>';
+    } else {
+      h += '<tr><td>' + r[0] + '</td><td class="' + (r[2]||'nm') + '">' + r[1] + '</td></tr>';
+    }
+  });
+  return h + '</table>';
+}
+
+function mkCard(title, body) {
+  var d = document.createElement('div');
+  d.className = 'cd';
+  d.innerHTML = '<div class="ct">' + title + '</div>' + body;
+  return d;
+}
+
+function mkAlert(cls, text) {
+  var d = document.createElement('div');
+  d.className = 'al ' + cls;
+  d.textContent = text;
+  return d;
+}
+
+// Report builders
+function buildReport(id) {
+  var el = document.createElement('div');
+  if (id === 'labs') {
+    el.innerHTML = '<div class="ct">🧪 血液檢驗 <span class="br">危急值</span></div>'
+      + mkTable([['CBC'],['Hemoglobin','11.2 g/dL','ok'],['Platelet','88,000 /uL','hi'],['WBC','10,800 /uL','nm'],
+                 ['LFT'],['AST','186 U/L','hi'],['ALT','142 U/L','hi'],['LDH','520 U/L','hi'],
+                 ['腎功能'],['Creatinine','1.1 mg/dL','lo'],['Uric Acid','7.8 mg/dL','lo']]);
+    el.appendChild(mkAlert('ar', 'PLT 88k + AST/LDH 升高 = HELLP syndrome！'));
+  } else if (id === 'urine') {
+    el.innerHTML = '<div class="ct">🫧 尿液蛋白</div>'
+      + mkTable([['Spot P/Cr','1.8 mg/mg (陽性>=0.3)','hi'],['Dipstick','3+ (+++)','hi'],['尿色','深黃色','lo']]);
+    var note = document.createElement('div');
+    note.style = 'font-size:10px;color:#8892a4;margin-top:6px';
+    note.textContent = 'P/Cr 1.8 = 約 1800mg/day 尿蛋白，屬重度蛋白尿';
+    el.appendChild(note);
+  } else if (id === 'nst') {
+    el.innerHTML = '<div class="ct">📈 NST <span class="bg">Reactive</span></div>' + nstSVG()
+      + mkTable([['基礎胎心率','142 bpm','ok'],['加速','2次 (>=15bpm x 15秒)','ok'],['減速','無','ok'],['NST 判讀','Reactive 正常','ok']]);
+  } else if (id === 'us') {
+    el.innerHTML = '<div class="ct">🔊 產科超音波</div>'
+      + mkTable([['胎兒'],['EFW','1820g (10th %ile)','lo'],['胎位','頭位 Vertex','nm'],
+                 ['羊水 & 血流'],['AFI','7.2 cm (正常 8-24)','lo'],['S/D ratio','3.1 (正常<3.5)','nm'],['End-diastolic','Present','ok']]);
+    el.appendChild(mkAlert('ay', 'EFW 10th %ile = FGR + AFI 偏低，需加強監測'));
+  } else if (id === 'mgso4') {
+    el.innerHTML = '<div class="ct">💊 MgSO4 硫酸鎂</div>'
+      + mkTable([['Loading','4g IV over 20min','ok'],['Maintenance','2g/hr','ok']]);
+    el.appendChild(mkAlert('ay', '監測：膝腱反射、尿量>25mL/hr、呼吸>12/min。備 Ca-gluconate 解毒'));
+  } else if (id === 'antihtn') {
+    el.innerHTML = '<div class="ct">❤️ 降壓治療</div>'
+      + mkTable([['藥物','Labetalol 20mg IV','ok'],['目標 BP','140-155 / 90-105','nm']]);
+    el.appendChild(mkAlert('ab', '不可降至正常值，以免胎盤灌流不足'));
+  } else if (id === 'deliver') {
+    el.innerHTML = '<div class="ct">🏥 分娩計畫</div>'
+      + mkTable([['GA','34+2 週','nm'],['適應症','重度子癇前症+HELLP','hi'],['促肺成熟','Betamethasone 12mg IM x2','ok']]);
+    el.appendChild(mkAlert('ag', '34週 + 重症 → 終止妊娠為根本治療'));
+  } else if (id === 'iv') {
+    el.innerHTML = '<div class="ct">💉 靜脈通路 & 血液</div>'
+      + mkTable([['CBC'],['Hemoglobin','9.2 g/dL','lo'],['Platelet','185,000 /uL','nm'],
+                 ['凝血'],['PT/INR','正常','ok'],['aPTT','正常','ok'],['Blood Type','O+','nm']]);
+    el.appendChild(mkAlert('ay', 'Hb 9.2 輕度貧血，已建立兩條大口徑靜脈通路'));
+  } else if (id === 'usp') {
+    el.innerHTML = '<div class="ct">🔊 產科超音波</div>'
+      + mkTable([['胎盤'],['胎盤位置','完全性前置胎盤','hi'],['覆蓋子宮頸內口','完全覆蓋','hi'],
+                 ['胎兒'],['BPP','8/8 正常','ok'],['胎位','頭位 Vertex','nm'],['EFW','約 2100g','nm']]);
+    el.appendChild(mkAlert('ar', '完全性前置胎盤確認 — 絕對禁止內診！'));
+  } else if (id === 'nstp') {
+    el.innerHTML = '<div class="ct">📈 NST <span class="bg">Reactive</span></div>' + nstSVG()
+      + mkTable([['基礎胎心率','140 bpm','ok'],['加速','2次 (>=15 x 15秒)','ok'],['減速','無','ok'],['NST','Reactive','ok']]);
+  }
+  return el;
+}
+
+// Case definitions stored as structured data (no inline HTML strings)
+var CDEF = {
+  pe: {
+    ptName: '陳韋玲', ptSub: 'G2P1 · 28 歲', diag: '重度子癇前症 + HELLP',
+    vitals: { bp:'168/112', hr:'96', rr:'18', spo2:'98', fhr:'—', ga:'34+2' },
+    phases: 6,
+    chiefTitle: '急診室 14:32',
+    chiefBody: '一位懷孕婦女由家屬攙扶走入急診，分診血壓 168/112 mmHg（已二次確認）。家屬告知患者頭痛劇烈、視覺模糊、上腹部疼痛。病患意識清醒，面色微蒼。',
+    alertCls: 'ar', alertTxt: 'BP 168/112 mmHg x2 — 需立即評估！',
+    checks: [
+      { id:'labs',   ic:'🧪', lb:'申請血液檢驗',  ds:'CBC、LFT、腎功能',
+        q:'根據血液報告，你發現了什麼？',
+        opts:['血小板低下+肝酶升高+LDH升高，符合 HELLP syndrome','CBC 正常，僅有輕微貧血，無需特殊處置','腎功能異常為主，優先處理急性腎損傷','數值輕微異常，屬正常孕期變化，繼續觀察'],
+        cor:0,         exp:'PLT 88k + AST 186 + LDH 520 三項符合 HELLP syndrome。這是重症表現，需立即處置。' },
+      { id:'urine',  ic:'🫧', lb:'驗尿蛋白',       ds:'Spot P/Cr + dipstick',
+        q:'尿液 P/Cr ratio 1.8，dipstick 3+，代表什麼？',
+        opts:['顯著蛋白尿，符合子癇前症診斷標準','輕微蛋白尿，可能是泌尿道感染，需培養確認','P/Cr 1.8 是正常孕期範圍，不需在意','需等24小時尿蛋白結果才能確診'],
+        cor:0, exp:'Spot urine P/Cr 0.3以上即為顯著蛋白尿，相當於24hr尿蛋白300mg以上。本案P/Cr 1.8 屬重度蛋白尿。' },
+      { id:'nst',    ic:'📈', lb:'胎心音 NST',     ds:'電子胎兒監視器',
+        q:'根據 NST 結果，你的判斷是？',
+        opts:['NST Reactive，胎兒目前狀態良好，但需持續監測','NST Non-reactive，需立即剖腹產','NST 無法判讀，需改做 BPP','加速次數不足，需延長監測至60分鐘'],
+        cor:0, exp:'NST Reactive 代表15分鐘內有2次以上加速，每次15bpm以上持續15秒以上，胎兒目前氧合良好。但母體病況可能快速變化，需持續監測。' },
+      { id:'us',     ic:'🔊', lb:'超音波評估',     ds:'EFW、AFI、臍帶 Doppler',
+        q:'超音波 EFW 10th %ile、AFI 7.2cm，代表什麼？',
+        opts:['EFW 低於10th %ile 符合 FGR，AFI 偏低提示胎盤功能可能不足','EFW 10th %ile 屬正常下限，AFI 7.2 完全正常','臍帶S/D ratio 3.1 已超標，需立即終止妊娠','超音波正常，可排除胎兒窘迫'],
+        cor:0, exp:'EFW 低於10th %ile 為胎兒生長遲滯 FGR。AFI 7.2cm 為輕度羊水過少（正常8-24）。整體顯示胎盤功能不足，需密切追蹤。' },
+      { id:'mgso4',  ic:'💊', lb:'給 MgSO4',       ds:'子癇抽搐預防',
+        q:'MgSO4 的正確給法與監測？',
+        opts:['Loading 4g IV over 20min，維持1-2g/hr；監測膝反射、尿量、呼吸','Loading 4g IV over 5min，快速達到治療濃度','Loading 2g IV，維持0.5g/hr；毋需監測','口服 MgSO4 即可，靜脈注射風險太高'],
+        cor:0, exp:'MgSO4 loading 4g IV over 20min，維持1-2g/hr。監測：膝腱反射消失為中毒指標、尿量需大於25mL/hr、呼吸速率需大於12/min。備 Ca-gluconate 1g IV 解毒。' },
+      { id:'antihtn',ic:'❤️', lb:'降壓治療',       ds:'Labetalol / Hydralazine',
+        q:'BP 168/112，降壓處置何者最適當？',
+        opts:['Labetalol 20mg IV，15min後若BP仍高追加40mg，目標140-155/90-105','立即 Nifedipine 10mg 舌下含服快速降壓','不需降壓治療，等待 MgSO4 發揮作用','目標 BP 120/80，越低越好'],
+        cor:0, exp:'BP 160/110以上需積極降壓。Labetalol 首選，靜脈給予。目標140-155/90-105；不可降太快以免胎盤灌流不足。舌下 Nifedipine 不建議。' },
+      { id:'deliver',ic:'🏥', lb:'分娩計畫',       ds:'終止妊娠時機',
+        q:'重度子癇前症 + HELLP + 34+2週，最適合的處置？',
+        opts:['終止妊娠為根本治療；給 Betamethasone 後積極規劃分娩','繼續保守治療至38週再終止','先給高劑量類固醇並等待2週再評估','HELLP 可藉血漿置換治好，不需現在終止'],
+        cor:0, exp:'重度子癇前症加HELLP合併34週以上，終止妊娠是根本治療。先給 Betamethasone 促肺成熟，再進行引產或剖腹。34週不應等至38週。' }
+    ]
   },
+  pp: {
+    ptName: '林小萍', ptSub: 'G2P1 · 29 歲', diag: '完全性前置胎盤',
+    vitals: { bp:'110/70', hr:'98', rr:'18', spo2:'98', fhr:'—', ga:'34' },
+    phases: 6,
+    chiefTitle: '急診室 09:15',
+    chiefBody: '29歲孕婦，孕34週，由丈夫陪同走入急診。主訴無痛性陰道大量出血，約浸濕一片衛生棉，無腹痛。病患神情緊張，意識清醒。',
+    alertCls: 'ay', alertTxt: '孕晚期出血 — 未確認胎盤位置前請勿內診！',
+    checks: [
+      { id:'iv',  ic:'💉', lb:'建立靜脈通路', ds:'IV access + CBC / 血型配對',
+        q:'Hb 9.2，PT/PTT 正常。下一步最重要的處置是？',
+        opts:['立即安排腹部超音波確認胎盤位置','立即做內診評估子宮頸擴張程度','給予鐵劑治療貧血，門診追蹤','立即輸血，等Hb>10才安排其他檢查'],
+        cor:0, exp:'無痛性出血加上孕晚期，首要任務是超音波確認胎盤位置（排除前置胎盤）。內診在胎盤位置確認前絕對禁忌。' },
+      { id:'usp', ic:'🔊', lb:'腹部超音波', ds:'胎盤位置、BPP、胎位',
+        q:'確認完全性前置胎盤，下列哪項最不適當？',
+        opts:['立即內診評估子宮頸擴張程度','持續胎心音監測（NST）','建立第二條靜脈通路，備血','通知新生兒科準備接生早產兒'],
+        cor:0, exp:'確認前置胎盤後，內診是絕對禁忌（Absolute Contraindication）。手指觸碰可能直接撕裂胎盤，引發致命大出血。' },
+      { id:'nstp',ic:'📈', lb:'胎心音監測', ds:'持續 NST',
+        q:'NST Reactive，但出血持續且BP下降至90/60。此時最優先？',
+        opts:['啟動緊急剖腹產並同時積極輸血復甦','繼續觀察，等血型配對結果再決定','給予 Tocolytics 延後分娩','先給 MgSO4 預防抽搐，再討論分娩計畫'],
+        cor:0, exp:'前置胎盤加上血流動力學不穩定（BP 90/60）= 緊急剖腹產適應症。同時啟動大量輸血協議（MTP），通知麻醉科、新生兒科。Tocolytics 在活動性出血時禁用。' }
+    ]
+  }
 };
 
-const AI_PROMPT = (difficulty) => `你是一位產科急症模擬遊戲的AI出題者。產生一個產科急症案例，難度：${difficulty}。
-嚴格只輸出JSON，不加任何markdown符號：
-{"title":"疾病名稱（中英）","chief":"主訴（中英含年齡/週數/G/P）","vitals":"BP HR SpO2 T RR","diagnosis":"最終診斷","steps":[{"prompt":"臨床問題（中英）","options":[{"id":"a","text":"選項","correct":true,"result":"回饋"},{"id":"b","text":"選項","correct":false,"result":"回饋"},{"id":"c","text":"選項","correct":true,"result":"回饋"},{"id":"d","text":"選項","correct":false,"result":"回饋"}],"mustPick":["a","c"]},{"prompt":"第二步","options":[{"id":"a","text":"選項","correct":true,"result":"回饋"},{"id":"b","text":"選項","correct":false,"result":"回饋"},{"id":"c","text":"選項","correct":true,"result":"回饋"},{"id":"d","text":"選項","correct":false,"result":"回饋"}],"mustPick":["a","c"]}],"outcome":"結局（中英）"}
-急症類別隨機：早產、胎兒窘迫、胎盤早剝、臍帶脫垂、羊水栓塞、宮外孕、肩難產、產後大出血等。`;
-
-// ── Preeclampsia full sim (iframe HTML) ────────────────────────────────────
-const PREECLAMPSIA_HTML = `<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;--bg4:#252d40;--border:#2a3349;--border2:#3a4566;--text:#e8eaf0;--text2:#8892a4;--text3:#5a6478;--green:#22c55e;--green-bg:#0a2e1a;--red:#ef4444;--red-bg:#2e0a0a;--yellow:#f59e0b;--yellow-bg:#2e200a;--blue:#60a5fa;--blue-bg:#0a1a2e;--teal:#2dd4bf;--r:8px;--r2:12px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;font-size:14px;line-height:1.5;overflow:hidden}
-.layout{display:grid;grid-template-columns:220px 1fr;height:100vh}
-.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
-.main{display:flex;flex-direction:column;overflow:hidden}
-.sid-block{padding:12px;border-bottom:1px solid var(--border)}
-.sid-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
-.patient-name{font-size:15px;font-weight:600}
-.patient-sub{font-size:12px;color:var(--text2);margin-top:2px}
-.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:5px}
-.badge-red{background:var(--red-bg);color:var(--red);border:1px solid #5a1212}
-.badge-yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid #5a3a0a}
-.badge-green{background:var(--green-bg);color:var(--green);border:1px solid #0a3a1a}
-.badge-blue{background:#0a1a2e;color:var(--blue);border:1px solid #1a2a4a}
-.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.v-card{background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);padding:7px 9px}
-.v-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase}
-.v-val{font-size:17px;font-weight:700;line-height:1.1;margin-top:1px}
-.v-unit{font-size:9px;color:var(--text3)}
-.v-red .v-val{color:var(--red)}.v-yellow .v-val{color:var(--yellow)}.v-green .v-val{color:var(--green)}.v-normal .v-val{color:var(--text)}
-.score-wrap{background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);padding:9px 11px}
-.score-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.score-num{font-size:20px;font-weight:700;color:var(--green)}
-.score-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
-.score-fill{height:100%;border-radius:3px;background:var(--green);transition:width .6s,background .6s}
-.phase-indicator{background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);padding:9px 11px}
-.phase-steps{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
-.phase-dot{width:7px;height:7px;border-radius:50%;background:var(--border2)}
-.phase-dot.done{background:var(--green)}.phase-dot.active{background:var(--teal)}
-.top-bar{padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;gap:10px;flex-shrink:0}
-.top-phase{font-size:12px;font-weight:600;color:var(--teal)}
-.top-scene{font-size:12px;color:var(--text2)}
-.content-split{flex:1;display:grid;grid-template-rows:1fr auto;overflow:hidden}
-.panel-area{overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
-.chat-area{border-top:1px solid var(--border);background:var(--bg2)}
-.chat-msgs{padding:12px 16px;max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
-.msg{padding:9px 13px;border-radius:var(--r2);font-size:12px;line-height:1.6;max-width:94%}
-.msg-sys{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-left:3px solid var(--teal)}
-.msg-user{background:var(--blue-bg);border:1px solid #1a2a4a;color:var(--text);align-self:flex-end}
-.msg-feedback{border-radius:var(--r);padding:9px 13px;font-size:12px;line-height:1.6}
-.msg-feedback.ok{background:var(--green-bg);border:1px solid #0a3a1a;color:#86efac}
-.msg-feedback.warn{background:var(--yellow-bg);border:1px solid #5a3a0a;color:#fcd34d}
-.msg-feedback.bad{background:var(--red-bg);border:1px solid #5a1212;color:#fca5a5}
-.msg-feedback.info{background:var(--blue-bg);border:1px solid #1a2a4a;color:#93c5fd}
-.input-row{display:flex;gap:7px;padding:9px 16px;border-top:1px solid var(--border);background:var(--bg)}
-.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:12px;outline:none}
-.chat-input:focus{border-color:var(--teal)}
-.chat-input::placeholder{color:var(--text3)}
-.send-btn{background:var(--teal);border:none;border-radius:var(--r);padding:8px 14px;font-size:12px;font-weight:600;color:#0a2020;cursor:pointer;white-space:nowrap}
-.send-btn:disabled{opacity:.4;cursor:not-allowed}
-.scene-card{background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);padding:14px 16px}
-.scene-time{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:6px;text-transform:uppercase}
-.scene-title{font-size:15px;font-weight:700;margin-bottom:7px}
-.scene-body{font-size:12px;color:var(--text2);line-height:1.75}
-.alert{border-radius:var(--r);padding:9px 13px;font-size:12px;font-weight:500}
-.alert-red{background:var(--red-bg);border:1px solid #5a1212;color:#fca5a5}
-.alert-yellow{background:var(--yellow-bg);border:1px solid #5a3a0a;color:#fcd34d}
-.alert-blue{background:var(--blue-bg);border:1px solid #1a2a4a;color:#93c5fd}
-.action-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px}
-.action-section-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:9px}
-.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.act-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 11px;color:var(--text);font-size:11px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px}
-.act-btn:hover:not(:disabled){background:var(--bg4);border-color:var(--teal);color:var(--teal)}
-.act-btn:disabled{opacity:.4;cursor:not-allowed;text-decoration:line-through}
-.report-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px}
-.report-title{font-size:12px;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:6px}
-.report-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
-.report-row:last-child{border-bottom:none}
-.rlab{color:var(--text2)}.rval{font-weight:600}
-.rval.hi{color:var(--red)}.rval.lo{color:var(--yellow)}.rval.ok{color:var(--green)}.rval.norm{color:var(--text)}
-.r-section{margin-bottom:9px}
-.r-sec-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:3px 0;border-bottom:1px solid var(--border);margin-bottom:3px}
-.nst-wrap{background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);padding:8px}
-.loading-dots{display:inline-flex;gap:4px}
-.loading-dots span{width:5px;height:5px;background:var(--teal);border-radius:50%;animation:blink 1.2s infinite}
-.loading-dots span:nth-child(2){animation-delay:.2s}.loading-dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-.thinking{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:7px;padding:7px 13px}
-</style></head><body>
-<div class="layout">
-<div class="sidebar">
-  <div class="sid-block">
-    <div class="sid-label">Patient</div>
-    <div class="patient-name">陳韋玲</div>
-    <div class="patient-sub" id="pt-sub">G2P1 · 28 歲</div>
-    <div id="pt-badges" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px"><span class="badge badge-yellow">待評估</span></div>
-  </div>
-  <div class="sid-block">
-    <div class="sid-label">母體生命徵象</div>
-    <div class="vitals-grid">
-      <div class="v-card v-red"><div class="v-label">BP</div><div class="v-val" id="vv-bp">168/112</div><div class="v-unit">mmHg</div></div>
-      <div class="v-card v-normal"><div class="v-label">HR</div><div class="v-val" id="vv-hr">96</div><div class="v-unit">bpm</div></div>
-      <div class="v-card v-normal"><div class="v-label">RR</div><div class="v-val" id="vv-rr">18</div><div class="v-unit">/min</div></div>
-      <div class="v-card v-green"><div class="v-label">SpO₂</div><div class="v-val" id="vv-spo2">98</div><div class="v-unit">%</div></div>
-    </div>
-  </div>
-  <div class="sid-block">
-    <div class="sid-label">胎兒</div>
-    <div class="vitals-grid">
-      <div class="v-card v-green"><div class="v-label">FHR</div><div class="v-val" id="vv-fhr">—</div><div class="v-unit">bpm</div></div>
-      <div class="v-card v-normal"><div class="v-label">GA</div><div class="v-val" style="font-size:14px" id="vv-ga">34+2</div><div class="v-unit">週</div></div>
-    </div>
-  </div>
-  <div class="sid-block">
-    <div class="sid-label">臨床積分</div>
-    <div class="score-wrap">
-      <div class="score-top"><span style="font-size:11px;color:var(--text2)">處置評分</span><span class="score-num" id="score-num">100</span></div>
-      <div class="score-track"><div class="score-fill" id="score-bar" style="width:100%"></div></div>
-    </div>
-  </div>
-  <div class="sid-block">
-    <div class="sid-label">遊戲進度</div>
-    <div class="phase-indicator">
-      <div style="font-size:11px;color:var(--text2)" id="phase-label">第 1 階段：主訴接收</div>
-      <div class="phase-steps" id="phase-dots">
-        <div class="phase-dot active"></div><div class="phase-dot"></div><div class="phase-dot"></div>
-        <div class="phase-dot"></div><div class="phase-dot"></div><div class="phase-dot"></div>
-      </div>
-    </div>
-  </div>
-  <div style="padding:12px;margin-top:auto"><div style="font-size:10px;color:var(--text3);line-height:1.6">⚠️ AI 根據 ACOG/UpToDate 指引評分<br>本遊戲僅供醫學教育用途</div></div>
-</div>
-<div class="main">
-  <div class="top-bar">
-    <div class="top-phase" id="top-phase">🏥 急診評估</div>
-    <div class="top-scene" id="top-scene">子癇前症臨床模擬</div>
-  </div>
-  <div class="content-split">
-    <div class="panel-area" id="panel-area"></div>
-    <div class="chat-area">
-      <div class="chat-msgs" id="chat-msgs"></div>
-      <div class="input-row">
-        <input class="chat-input" id="chat-input" placeholder="輸入評估、處置或問題...">
-        <button class="send-btn" id="send-btn" onclick="sendMsg()">送出</button>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-<script>
-const API='https://api.anthropic.com/v1/messages',MODEL='claude-sonnet-4-6';
-const STATE={phase:1,score:100,unlocked:{labs:false,urine:false,nst:false,us:false},history:[],activeAlert:null,hint:null,vitals:{fhr:null}};
-const SYSTEM=\`你是「子癇前症臨床模擬考官」，根據 ACOG/UpToDate 指引評判醫學生的處置。
-【遊戲規則】玩家輸入臨床行動，你評估正確性並推進劇情。資訊隱蔽：玩家必須主動申請才能得到檢查結果。
-【病例（對玩家隱蔽）】陳韋玲，28歲，G2P1，妊娠34+2週。主訴：持續頭痛（前額）伴視覺模糊3小時、右上腹悶痛。BP 168/112 mmHg（已二次確認）。
-隱藏資料（需玩家申請後才給）：CBC: PLT 88,000、Hb 11.2、WBC 10800。LFT: AST 186、ALT 142、LDH 520。Renal: Cr 1.1、Uric acid 7.8。Urine P/Cr ratio 1.8（陽性≥0.3），dipstick 3+。NST: reactive，FHR 142 bpm，2次加速≥15bpm×15秒，無減速。US: EFW 1820g（10th %ile，FGR），AFI 7.2cm，臍帶S/D ratio 3.1。診斷：重度子癇前症+疑似HELLP（PLT↓+AST↑+LDH↑）。
-【回覆格式】嚴格JSON，無其他文字：{"feedback_type":"ok|warn|bad|info","feedback":"評分說明2-3句","score_delta":數字,"narrative":"劇情推進2-3句","unlock_labs":true/false,"unlock_urine":true/false,"unlock_nst":true/false,"unlock_us":true/false,"vitals_update":{"bp":"新值或null","hr":數字或null,"fhr":數字或null},"phase":1到6,"phase_label":"當前階段名","show_alert":"警示或null","action_hint":"提示下一步1句"}\`;
-
-function buildInitialPanel(){
-  document.getElementById('panel-area').innerHTML=\`
-  <div class="scene-card">
-    <div class="scene-time">📍 急診室 · 14:32</div>
-    <div class="scene-title">護理師呼叫：新病患到院</div>
-    <div class="scene-body">一位懷孕婦女由家屬攙扶走入急診，分診血壓 <strong style="color:var(--red)">168/112 mmHg</strong>。<br><br>家屬：「她頭痛很嚴重，眼睛看不清楚，肚子上面也在痛...」<br><br>病患意識清醒，面色微蒼，右手輕壓上腹部。</div>
-  </div>
-  <div class="alert alert-red">⚠️ BP 168/112 mmHg — 需立即評估！請開始詢問病史或進行處置。</div>
-  <div class="action-section">
-    <div class="action-section-title">快速動作</div>
-    <div class="action-grid">
-      <button class="act-btn" onclick="quickAct('詢問完整病史：目前主訴、過去產前檢查紀錄、症狀開始時間')">📋 詢問病史</button>
-      <button class="act-btn" onclick="quickAct('申請血液檢驗：CBC、AST/ALT/LDH、Cr、Uric acid')">🧪 申請血液檢驗</button>
-      <button class="act-btn" onclick="quickAct('申請 spot urine protein-to-creatinine ratio 及 dipstick')">🫧 驗尿蛋白</button>
-      <button class="act-btn" onclick="quickAct('連接電子胎兒監視器進行 NST')">📈 裝 NST 監測</button>
-      <button class="act-btn" onclick="quickAct('給予 MgSO4 4g IV loading over 20分鐘，2g/hr 維持')">💊 給 MgSO₄</button>
-      <button class="act-btn" onclick="quickAct('給予 Labetalol 20mg IV 降壓，目標 BP <155/105')">❤️ 降壓治療</button>
-      <button class="act-btn" onclick="quickAct('床邊超音波評估 EFW、AFI、臍帶血流')">🔊 超音波評估</button>
-      <button class="act-btn" onclick="quickAct('給予 Betamethasone 12mg IM 促胎肺成熟')">💉 給類固醇</button>
-    </div>
-  </div>
-  <div class="alert alert-blue">💡 你是值班住院醫師，請開始接案評估。</div>\`;
+// UI helpers
+function setV(v) {
+  var m = { bp:'vbp', hr:'vhr', rr:'vrr', spo2:'vsp', fhr:'vfh', ga:'vga' };
+  Object.keys(v).forEach(function(k) { var e = document.getElementById(m[k]); if (e) e.textContent = v[k]; });
 }
-
-function buildLabsPanel(u){
-  if(!u)return\`<div class="report-panel"><div class="report-title">🧪 血液檢驗報告</div><div style="text-align:center;padding:18px;color:var(--text3);font-size:11px">🔒 尚未申請血液檢驗</div></div>\`;
-  return\`<div class="report-panel"><div class="report-title">🧪 血液檢驗報告 <span class="badge badge-red">危急值</span></div>
-  <div class="r-section"><div class="r-sec-label">CBC</div>
-    <div class="report-row"><span class="rlab">Hb</span><span class="rval ok">11.2 g/dL</span></div>
-    <div class="report-row"><span class="rlab">Platelet ↓↓</span><span class="rval hi">88,000 /μL</span></div>
-    <div class="report-row"><span class="rlab">WBC</span><span class="rval norm">10,800 /μL</span></div>
-  </div>
-  <div class="r-section"><div class="r-sec-label">LFT</div>
-    <div class="report-row"><span class="rlab">AST ↑↑</span><span class="rval hi">186 U/L</span></div>
-    <div class="report-row"><span class="rlab">ALT ↑↑</span><span class="rval hi">142 U/L</span></div>
-    <div class="report-row"><span class="rlab">LDH ↑</span><span class="rval hi">520 U/L</span></div>
-  </div>
-  <div class="r-section"><div class="r-sec-label">腎功能</div>
-    <div class="report-row"><span class="rlab">Cr ↑</span><span class="rval lo">1.1 mg/dL</span></div>
-    <div class="report-row"><span class="rlab">Uric Acid ↑</span><span class="rval lo">7.8 mg/dL</span></div>
-  </div>
-  <div class="alert alert-red" style="margin-top:7px;font-size:11px">⚡ PLT 88k + AST/LDH 升高 → 符合 HELLP syndrome！</div></div>\`;
+function updScore(d) {
+  G.score = Math.max(0, Math.min(100, G.score + (d||0)));
+  var c = G.score>=70 ? '#22c55e' : G.score>=40 ? '#f59e0b' : '#ef4444';
+  document.getElementById('scn').textContent = G.score;
+  document.getElementById('scn').style.color = c;
+  document.getElementById('scf').style.width = G.score + '%';
+  document.getElementById('scf').style.background = c;
 }
-
-function buildUrinePanel(u){
-  if(!u)return\`<div class="report-panel"><div class="report-title">🫧 尿液蛋白</div><div style="text-align:center;padding:18px;color:var(--text3);font-size:11px">🔒 尚未申請尿液檢驗</div></div>\`;
-  return\`<div class="report-panel"><div class="report-title">🫧 尿液蛋白檢驗</div>
-  <div class="report-row"><span class="rlab">Spot Urine P/Cr</span><span class="rval hi">1.8 mg/mg（陽性≥0.3）</span></div>
-  <div class="report-row"><span class="rlab">Dipstick</span><span class="rval hi">3+ (+++)</span></div>
-  <div style="font-size:10px;color:var(--text2);margin-top:5px">相當於 24hr 尿蛋白約 1800mg → 嚴重蛋白尿</div></div>\`;
-}
-
-function buildNSTPanel(u){
-  if(!u)return\`<div class="report-panel"><div class="report-title">📈 胎兒監視器 NST</div><div style="text-align:center;padding:18px;color:var(--text3);font-size:11px">🔒 尚未連接胎兒監視器</div></div>\`;
-  return\`<div class="report-panel"><div class="report-title">📈 胎兒監視器 NST <span class="badge badge-green">Reactive</span></div>
-  <div class="nst-wrap">
-    <svg viewBox="0 0 560 100" style="width:100%;height:90px">
-      <rect width="560" height="100" fill="var(--bg4)" rx="4"/>
-      \${[0,1,2,3,4,5].map(i=>'<line x1="'+(i*93)+'" y1="0" x2="'+(i*93)+'" y2="100" stroke="var(--border)" stroke-width="0.5"/>').join('')}
-      \${[0,1,2].map(i=>'<line x1="0" y1="'+(18+i*28)+'" x2="560" y2="'+(18+i*28)+'" stroke="var(--border)" stroke-width="0.5"/>').join('')}
-      <text x="4" y="20" font-size="8" fill="var(--text3)">160</text>
-      <text x="4" y="48" font-size="8" fill="var(--text3)">140</text>
-      <text x="4" y="76" font-size="8" fill="var(--text3)">120</text>
-      <polyline fill="none" stroke="#22c55e" stroke-width="1.5" points="20,48 40,44 60,46 80,43 100,41 115,38 125,34 135,32 145,35 155,40 165,45 180,47 200,45 220,43 240,47 260,48 275,46 285,42 295,38 305,34 315,32 325,35 335,40 345,45 360,47 380,45 400,47 420,48 440,46 460,48 480,47 500,48 520,47 540,48"/>
-      <rect x="110" y="25" width="55" height="28" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2" rx="2" opacity=".7"/>
-      <rect x="280" y="25" width="65" height="28" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2" rx="2" opacity=".7"/>
-      <text x="112" y="63" font-size="7" fill="#22c55e">加速×1</text>
-      <text x="282" y="63" font-size="7" fill="#22c55e">加速×2</text>
-    </svg>
-  </div>
-  <div style="margin-top:8px">
-    <div class="report-row"><span class="rlab">基礎胎心率</span><span class="rval ok">142 bpm</span></div>
-    <div class="report-row"><span class="rlab">加速</span><span class="rval ok">2次（≥15bpm×15秒）✓</span></div>
-    <div class="report-row"><span class="rlab">減速</span><span class="rval ok">無</span></div>
-    <div class="report-row"><span class="rlab">NST 判讀</span><span class="rval ok">Reactive（正常）</span></div>
-  </div></div>\`;
-}
-
-function buildUSPanel(u){
-  if(!u)return\`<div class="report-panel"><div class="report-title">🔊 產科超音波</div><div style="text-align:center;padding:18px;color:var(--text3);font-size:11px">🔒 尚未申請超音波</div></div>\`;
-  return\`<div class="report-panel"><div class="report-title">🔊 產科超音波報告</div>
-  <div class="r-section"><div class="r-sec-label">胎兒生物測量</div>
-    <div class="report-row"><span class="rlab">EFW ↓</span><span class="rval lo">1,820g（10th %ile）</span></div>
-    <div class="report-row"><span class="rlab">胎位</span><span class="rval norm">頭位 Vertex</span></div>
-    <div class="report-row"><span class="rlab">胎盤</span><span class="rval norm">後壁，Grade II</span></div>
-  </div>
-  <div class="r-section"><div class="r-sec-label">羊水 & 血流</div>
-    <div class="report-row"><span class="rlab">AFI ↓</span><span class="rval lo">7.2 cm（正常 8-24）</span></div>
-    <div class="report-row"><span class="rlab">臍帶 S/D ratio</span><span class="rval norm">3.1（正常&lt;3.5）</span></div>
-    <div class="report-row"><span class="rlab">End-diastolic flow</span><span class="rval ok">Present ✓</span></div>
-  </div>
-  <div class="alert alert-yellow" style="margin-top:7px;font-size:11px">EFW 10th %ile 符合 FGR + AFI 偏低，需加強胎兒監測。</div></div>\`;
-}
-
-function renderPanels(){
-  const u=STATE.unlocked,pa=document.getElementById('panel-area');
-  pa.innerHTML='';
-  if(STATE.phase>=2){
-    const s=document.createElement('div');s.className='scene-card';
-    s.innerHTML='<div class="scene-time">📍 急診 → 產科病房</div><div class="scene-title" id="scene-dyn-title">評估進行中</div><div class="scene-body" id="scene-dyn-body">持續評估中，請根據檢查結果做出臨床判斷。</div>';
-    pa.appendChild(s);
+function setPhase(p, lbl, mx) {
+  if (mx) G.pmax = mx;
+  document.getElementById('phl').textContent = '第 ' + p + ' 階段：' + lbl;
+  var pp = ['🏥 急診接案','🔍 初步評估','📋 檢查申請','📊 報告判讀','💊 治療處置','🏁 分娩決策'];
+  document.getElementById('tp').textContent = pp[Math.min(p-1, 5)];
+  var el = document.getElementById('pds'); el.innerHTML = '';
+  for (var i = 0; i < G.pmax; i++) {
+    var d = document.createElement('div');
+    d.className = 'pd' + (i < p-1 ? ' dn' : i === p-1 ? ' ac' : '');
+    el.appendChild(d);
   }
-  if(STATE.activeAlert){const al=document.createElement('div');al.className='alert alert-red';al.textContent='⚠️ '+STATE.activeAlert;pa.appendChild(al);}
-  [buildLabsPanel(u.labs),buildUrinePanel(u.urine),buildNSTPanel(u.nst),buildUSPanel(u.us)].forEach(h=>{const d=document.createElement('div');d.innerHTML=h;pa.appendChild(d.firstElementChild);});
-  const act=document.createElement('div');act.className='action-section';
-  act.innerHTML=\`<div class="action-section-title">可用處置</div><div class="action-grid">
-    <button class="act-btn" \${u.labs?'disabled':''} onclick="quickAct('申請血液檢驗：CBC、LFT、腎功能')">\${u.labs?'✓ 血液已申請':'🧪 申請血液檢驗'}</button>
-    <button class="act-btn" \${u.urine?'disabled':''} onclick="quickAct('申請尿蛋白 P/Cr ratio')">\${u.urine?'✓ 尿蛋白已驗':'🫧 驗尿蛋白'}</button>
-    <button class="act-btn" \${u.nst?'disabled':''} onclick="quickAct('連接電子胎兒監視器 NST')">\${u.nst?'✓ NST 已連接':'📈 裝 NST 監測'}</button>
-    <button class="act-btn" \${u.us?'disabled':''} onclick="quickAct('床邊超音波評估 EFW、AFI、臍帶血流')">\${u.us?'✓ 超音波已做':'🔊 超音波評估'}</button>
-    <button class="act-btn" onclick="quickAct('給予 MgSO4 4g IV loading over 20分鐘，2g/hr 維持，備好 Calcium gluconate')">💊 給 MgSO₄</button>
-    <button class="act-btn" onclick="quickAct('給予 Labetalol 20mg IV 降壓')">❤️ 降壓治療</button>
-    <button class="act-btn" onclick="quickAct('給予 Betamethasone 12mg IM')">💉 促胎肺成熟</button>
-    <button class="act-btn" onclick="quickAct('決定分娩計畫：評估立即引產或剖腹，說明理由')">🏥 分娩決策</button>
-  </div>\`;
-  pa.appendChild(act);
-  if(STATE.hint){const h=document.createElement('div');h.className='alert alert-blue';h.textContent='💡 '+STATE.hint;pa.appendChild(h);}
+}
+function addDone(id, ic, lb, el) {
+  G.done[id] = { ic:ic, lb:lb, el:el };
+  var dl = document.getElementById('dl'); dl.innerHTML = '';
+  Object.keys(G.done).forEach(function(k) {
+    var c = G.done[k];
+    var b = document.createElement('button');
+    b.className = 'di'; b.textContent = c.ic + ' ' + c.lb;
+    b.setAttribute('data-k', k);
+    b.onclick = function() {
+      var kk = this.getAttribute('data-k');
+      document.getElementById('oc').innerHTML = '';
+      var hd = document.createElement('div');
+      hd.style = 'font-size:13px;font-weight:700;margin-bottom:12px;padding-right:24px';
+      hd.textContent = G.done[kk].lb;
+      document.getElementById('oc').appendChild(hd);
+      document.getElementById('oc').appendChild(G.done[kk].el.cloneNode(true));
+      document.getElementById('ov').style.display = 'flex';
+    };
+    dl.appendChild(b);
+  });
+}
+function appEl(el) {
+  var sa = document.getElementById('sa');
+  sa.appendChild(el);
+  sa.scrollTop = sa.scrollHeight;
+}
+function appHTML(html) {
+  var d = document.createElement('div'); d.innerHTML = html;
+  appEl(d);
+}
+function setScene(el) { document.getElementById('sa').innerHTML = ''; document.getElementById('sa').appendChild(el); }
+
+// Quiz
+function renderQuiz(chk) {
+  G.qs[chk.id] = chk;
+  var wrap = document.createElement('div'); wrap.className = 'qc'; wrap.id = 'q_' + chk.id;
+  var qq = document.createElement('div'); qq.className = 'qq'; qq.textContent = '🧠 判讀問題：' + chk.q;
+  wrap.appendChild(qq);
+  var qo = document.createElement('div'); qo.className = 'qo';
+  chk.opts.forEach(function(o, i) {
+    var b = document.createElement('button'); b.className = 'qb';
+    b.textContent = String.fromCharCode(65+i) + '. ' + o;
+    b.setAttribute('data-i', i); b.setAttribute('data-cid', chk.id);
+    b.onclick = function() { ansQ(chk.id, parseInt(this.getAttribute('data-i'))); };
+    qo.appendChild(b);
+  });
+  wrap.appendChild(qo);
+  appEl(wrap);
 }
 
-function updateVitals(vu){
-  if(!vu)return;
-  if(vu.bp)document.getElementById('vv-bp').textContent=vu.bp;
-  if(vu.hr)document.getElementById('vv-hr').textContent=vu.hr;
-  if(vu.fhr){document.getElementById('vv-fhr').textContent=vu.fhr;STATE.vitals.fhr=vu.fhr;}
-}
-function updateScore(delta){
-  STATE.score=Math.max(0,Math.min(100,STATE.score+delta));
-  document.getElementById('score-num').textContent=STATE.score;
-  const bar=document.getElementById('score-bar');
-  bar.style.width=STATE.score+'%';
-  bar.style.background=STATE.score>=70?'var(--green)':STATE.score>=40?'var(--yellow)':'var(--red)';
-  document.getElementById('score-num').style.color=STATE.score>=70?'var(--green)':STATE.score>=40?'var(--yellow)':'var(--red)';
-}
-function updatePhase(p,label){
-  STATE.phase=p;
-  document.getElementById('phase-label').textContent='第 '+p+' 階段：'+label;
-  const phases=['🏥 急診接案','🔍 評估中','📊 報告解讀','💊 治療處置','👶 分娩決策','✅ 結案'];
-  document.getElementById('top-phase').textContent=phases[p-1]||'';
-  document.querySelectorAll('.phase-dot').forEach((d,i)=>{d.className='phase-dot';if(i<p-1)d.classList.add('done');else if(i===p-1)d.classList.add('active');});
-}
-function addMsg(type,text){
-  const msgs=document.getElementById('chat-msgs'),div=document.createElement('div');
-  if(type==='user'){div.className='msg msg-user';div.textContent=text;}
-  else if(type==='sys'){div.className='msg msg-sys';div.innerHTML=text;}
-  else{div.className='msg-feedback '+type;div.innerHTML=text;}
-  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
-}
-function showThinking(){
-  const msgs=document.getElementById('chat-msgs'),div=document.createElement('div');
-  div.className='thinking';div.id='thinking';
-  div.innerHTML='考官評分中 <div class="loading-dots"><span></span><span></span><span></span></div>';
-  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
-}
-function hideThinking(){const t=document.getElementById('thinking');if(t)t.remove();}
-
-async function callExaminer(msg){
-  STATE.history.push({role:'user',content:msg});
-  const ctx='當前狀態：Phase='+STATE.phase+' Score='+STATE.score+' labs='+STATE.unlocked.labs+' urine='+STATE.unlocked.urine+' nst='+STATE.unlocked.nst+' us='+STATE.unlocked.us+'\n玩家：'+msg;
-  const messages=[...STATE.history.slice(0,-1),{role:'user',content:ctx}];
-  const resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:1000,system:SYSTEM,messages})});
-  const data=await resp.json();
-  const raw=data.content?.map(c=>c.text||'').join('');
-  STATE.history.push({role:'assistant',content:raw});
-  try{return JSON.parse(raw.replace(/\`\`\`json|\`\`\`/g,'').trim());}
-  catch{return{feedback_type:'info',feedback:'回應解析錯誤，請再試。',score_delta:0,narrative:'請繼續操作。',unlock_labs:false,unlock_urine:false,unlock_nst:false,unlock_us:false,vitals_update:null,phase:STATE.phase,phase_label:'評估中',show_alert:null,action_hint:'請繼續評估。'};}
+function ansQ(cid, chosen) {
+  var chk = G.qs[cid]; if (!chk) return;
+  var wrap = document.getElementById('q_' + cid); if (!wrap) return;
+  wrap.querySelectorAll('.qb').forEach(function(b, i) {
+    b.classList.add('off');
+    if (i === chk.cor) b.className = 'qb ' + (i === chosen ? 'cor' : 'rev');
+    else if (i === chosen) b.className = 'qb wrg';
+  });
+  var ok = chosen === chk.cor;
+  updScore(ok ? 15 : -10);
+  var fb = document.createElement('div');
+  fb.className = 'al ' + (ok ? 'ag' : 'ar'); fb.style.marginTop = '10px';
+  fb.textContent = (ok ? '✅ ' : '❌ ') + chk.exp;
+  wrap.appendChild(fb);
+  var nb = document.createElement('button'); nb.className = 'nb'; nb.textContent = '繼續 →';
+  nb.onclick = showMenu;
+  wrap.appendChild(nb);
+  document.getElementById('sa').scrollTop = 99999;
 }
 
-async function processAction(msg){
-  const btn=document.getElementById('send-btn'),inp=document.getElementById('chat-input');
-  btn.disabled=true;inp.disabled=true;
-  addMsg('user',msg);showThinking();
-  try{
-    const res=await callExaminer(msg);
-    hideThinking();
-    if(res.unlock_labs)STATE.unlocked.labs=true;
-    if(res.unlock_urine)STATE.unlocked.urine=true;
-    if(res.unlock_nst){STATE.unlocked.nst=true;if(!STATE.vitals.fhr)updateVitals({fhr:142});}
-    if(res.unlock_us)STATE.unlocked.us=true;
-    if(res.vitals_update)updateVitals(res.vitals_update);
-    if(res.score_delta)updateScore(res.score_delta);
-    if(res.phase)updatePhase(res.phase,res.phase_label||'評估中');
-    if(res.show_alert)STATE.activeAlert=res.show_alert;
-    if(res.action_hint)STATE.hint=res.action_hint;
-    if(STATE.unlocked.labs&&STATE.phase>=2){document.getElementById('pt-badges').innerHTML='<span class="badge badge-red">重度子癇前症</span><span class="badge badge-red">疑似HELLP</span>';}
-    addMsg(res.feedback_type||'info','<strong>'+(res.score_delta>0?'✅ +'+res.score_delta+'分':res.score_delta<0?'❌ '+res.score_delta+'分':'ℹ️')+'</strong> '+res.feedback);
-    if(res.narrative)addMsg('sys','📢 '+res.narrative);
-    if(STATE.phase>=2)renderPanels();
-    document.getElementById('top-scene').textContent=res.narrative||'評估進行中...';
-  }catch(err){hideThinking();addMsg('bad','網路錯誤：'+err.message);}
-  btn.disabled=false;inp.disabled=false;inp.focus();
-}
-function sendMsg(){const inp=document.getElementById('chat-input'),msg=inp.value.trim();if(!msg)return;inp.value='';processAction(msg);}
-function quickAct(msg){processAction(msg);}
-
-buildInitialPanel();
-addMsg('sys','🏥 <strong>案例開始</strong>｜急診護理師：「病患陳韋玲，懷孕34週多，BP 168/112，主訴頭痛、視覺模糊、上腹痛，家屬陪同入院。」<br><br>你是值班住院醫師，請開始接案評估。');
-document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
-<\/script></body></html>`;
-
-// ── Main App ───────────────────────────────────────────────────────────────
-export default function OBSimGame() {
-  const [screen, setScreen] = useState("menu");
-  const [difficulty, setDifficulty] = useState(null);
-  const [expandedChapter, setExpandedChapter] = useState(null);
-  const [currentCase, setCurrentCase] = useState(null);
-  const [stepIdx, setStepIdx] = useState(0);
-  const [selected, setSelected] = useState([]);
-  const [revealed, setRevealed] = useState([]);
-  const [stepDone, setStepDone] = useState(false);
-  const [score, setScore] = useState(0);
-  const [mistakes, setMistakes] = useState(0);
-  const [log, setLog] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [aiError, setAiError] = useState(null);
-  const [completedCases, setCompletedCases] = useState([]);
-  const [showPreeclampsia, setShowPreeclampsia] = useState(false);
-
-  const diffInfo = DIFFICULTY.find(d => d.id === difficulty);
-  const totalSteps = currentCase?.steps?.length || 0;
-  const currentStep = currentCase?.steps?.[stepIdx];
-
-  async function loadAICase() {
-    setLoading(true); setAiError(null);
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000,
-          messages: [{ role: "user", content: AI_PROMPT(difficulty) }] })
-      });
-      const data = await res.json();
-      const txt = data.content.map(i => i.text || "").join("");
-      const parsed = JSON.parse(txt.replace(/```json|```/g, "").trim());
-      parsed.id = "ai_" + Date.now();
-      setCurrentCase(parsed); setScreen("playing");
-    } catch (e) { setAiError("AI生成失敗，請重試。" + e.message); }
-    setLoading(false);
-  }
-
-  function startFixedCase(caseId) {
-    if (caseId === "preeclampsia") { setShowPreeclampsia(true); return; }
-    const c = FIXED_CASES[caseId]; if (!c) return;
-    setCurrentCase(c); setStepIdx(0); setSelected([]); setRevealed([]);
-    setStepDone(false); setScore(0); setMistakes(0); setLog([]);
-    setScreen("playing");
-  }
-
-  function startAI() {
-    setStepIdx(0); setSelected([]); setRevealed([]);
-    setStepDone(false); setScore(0); setMistakes(0); setLog([]);
-    setCurrentCase(null); setScreen("playing"); loadAICase();
-  }
-
-  function toggleSelect(id) {
-    if (stepDone) return;
-    setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
-  }
-
-  function confirmStep() {
-    const must = currentStep.mustPick || [], opts = currentStep.options;
-    let pts = 0, newLog = [], toReveal = [...selected];
-    selected.forEach(id => {
-      const opt = opts.find(o => o.id === id); if (!opt) return;
-      if (opt.correct) pts += Math.round(40 / Math.max(must.length, 1));
-      else setMistakes(m => m + 1);
-      newLog.push({ text: opt.result, correct: opt.correct });
-    });
-    must.forEach(id => {
-      if (!selected.includes(id)) {
-        const opt = opts.find(o => o.id === id);
-        if (opt) { newLog.push({ text: `⚠️ 遺漏：${opt.text}\n${opt.result}`, correct: false, missed: true }); toReveal.push(id); }
-      }
-    });
-    setRevealed(toReveal); setScore(s => s + pts);
-    setLog(l => [...l, ...newLog]); setStepDone(true);
-  }
-
-  function nextStep() {
-    if (stepIdx + 1 < totalSteps) {
-      setStepIdx(i => i + 1); setSelected([]); setRevealed([]); setStepDone(false);
-    } else {
-      if (currentCase?.id && !currentCase.id.startsWith("ai_"))
-        setCompletedCases(c => c.includes(currentCase.id) ? c : [...c, currentCase.id]);
-      setScreen("result");
+function doCheck(idx) {
+  var cs = CDEF[G.cid]; var chk = cs.checks[idx];
+  if (!chk || G.done[chk.id]) return;
+  var note = document.createElement('div');
+  note.style = 'color:#5a6478;font-size:12px;padding:8px 0';
+  note.textContent = '申請中：' + chk.lb + '...';
+  appEl(note);
+  setTimeout(function() {
+    var rEl = buildReport(chk.id);
+    var card = document.createElement('div'); card.className = 'cd';
+    card.appendChild(rEl);
+    addDone(chk.id, chk.ic, chk.lb, rEl);
+    appEl(card);
+    if (chk.id === 'nst' || chk.id === 'nstp') {
+      document.getElementById('vfh').textContent = chk.id === 'nst' ? '142' : '140';
     }
-  }
-
-  // ── Preeclampsia full sim overlay ────────────────────────────────────────
-  if (showPreeclampsia) return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "6px 12px", background: "var(--color-background-secondary)", borderBottom: "0.5px solid var(--color-border-tertiary)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>🏥 子癇前症 / HELLP 全互動模擬</span>
-        <button onClick={() => { setShowPreeclampsia(false); setCompletedCases(c => c.includes("preeclampsia") ? c : [...c, "preeclampsia"]); }}
-          style={{ fontSize: 11, padding: "3px 10px", border: "0.5px solid var(--color-border-tertiary)", borderRadius: "var(--border-radius-md)", cursor: "pointer" }}>
-          ← 回地圖
-        </button>
-      </div>
-      <iframe
-        srcDoc={PREECLAMPSIA_HTML}
-        style={{ flex: 1, border: "none", width: "100%" }}
-        title="Preeclampsia Simulator"
-        sandbox="allow-scripts allow-same-origin"
-      />
-    </div>
-  );
-
-  // ── MENU ─────────────────────────────────────────────────────────────────
-  if (screen === "menu") return (
-    <div style={{ padding: "2rem 1.5rem", maxWidth: 600, margin: "0 auto" }}>
-      <h2 style={{ fontSize: 22, fontWeight: 500, marginBottom: 4 }}>🏥 產科急症模擬遊戲</h2>
-      <p style={{ color: "var(--color-text-secondary)", fontSize: 13, marginBottom: "1.5rem" }}>OB Emergency Clinical Simulator</p>
-      <div style={{ background: "var(--color-background-secondary)", borderRadius: "var(--border-radius-lg)", padding: "1rem 1.25rem", marginBottom: "1.5rem", border: "0.5px solid var(--color-border-tertiary)" }}>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.8 }}>🎯 扮演主責醫師，面對真實產科急症<br />📋 5大章節 · 25個關卡 · AI無限動態生成<br /><span style={{ color: "var(--color-text-secondary)" }}>Play as attending physician · 5 chapters · AI dynamic mode</span></p>
-      </div>
-      <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>選擇難度 Select Difficulty</p>
-      {DIFFICULTY.map(d => (
-        <div key={d.id} onClick={() => setDifficulty(d.id)}
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.75rem 1rem", marginBottom: 8, borderRadius: "var(--border-radius-md)", border: `0.5px solid ${difficulty === d.id ? "var(--color-border-primary)" : "var(--color-border-tertiary)"}`, background: difficulty === d.id ? "var(--color-background-secondary)" : "var(--color-background-primary)", cursor: "pointer" }}>
-          <span>{d.icon}</span>
-          <p style={{ margin: 0, fontWeight: difficulty === d.id ? 500 : 400, fontSize: 14 }}>{d.label} <span style={{ color: "var(--color-text-secondary)", fontWeight: 400, fontSize: 12 }}>/ {d.en}</span></p>
-          {difficulty === d.id && <span style={{ marginLeft: "auto" }}>✓</span>}
-        </div>
-      ))}
-      <button onClick={() => difficulty && setScreen("map")} disabled={!difficulty}
-        style={{ width: "100%", padding: "0.85rem", fontSize: 15, fontWeight: 500, marginTop: 8, background: difficulty ? "var(--color-background-info)" : "var(--color-background-secondary)", color: difficulty ? "var(--color-text-info)" : "var(--color-text-tertiary)", border: "0.5px solid", borderColor: difficulty ? "var(--color-border-info)" : "var(--color-border-tertiary)", borderRadius: "var(--border-radius-md)", cursor: difficulty ? "pointer" : "default" }}>
-        進入地圖 Enter Map →
-      </button>
-    </div>
-  );
-
-  // ── MAP ──────────────────────────────────────────────────────────────────
-  if (screen === "map") return (
-    <div style={{ padding: "1.5rem", maxWidth: 640, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-        <h2 style={{ fontSize: 18, fontWeight: 500, margin: 0 }}>關卡地圖 Case Map</h2>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>{diffInfo?.icon} {diffInfo?.label}</span>
-          <button onClick={() => setScreen("menu")} style={{ fontSize: 12, padding: "4px 10px", borderRadius: "var(--border-radius-md)", border: "0.5px solid var(--color-border-tertiary)", cursor: "pointer" }}>← 返回</button>
-        </div>
-      </div>
-      <p style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: "1.25rem" }}>✅ 已完成 {completedCases.length} 個關卡 · 🔒 = 即將推出</p>
-
-      <div onClick={startAI} style={{ background: "var(--color-background-secondary)", border: "0.5px solid var(--color-border-secondary)", borderRadius: "var(--border-radius-lg)", padding: "0.85rem 1rem", marginBottom: "1.25rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ fontSize: 22 }}>🤖</span>
-        <div style={{ flex: 1 }}>
-          <p style={{ margin: 0, fontWeight: 500, fontSize: 14 }}>AI 動態模式 AI Dynamic</p>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-secondary)" }}>每次生成全新情境，無限重玩</p>
-        </div>
-        <span style={{ color: "var(--color-text-secondary)", fontSize: 18 }}>→</span>
-      </div>
-
-      {CHAPTERS.map(ch => {
-        const col = { bg: ch.color, border: ch.border, text: ch.text };
-        const isOpen = expandedChapter === ch.id;
-        const availCount = ch.cases.filter(c => c.available).length;
-        return (
-          <div key={ch.id} style={{ marginBottom: 10 }}>
-            <div onClick={() => setExpandedChapter(isOpen ? null : ch.id)}
-              style={{ background: col.bg, border: `0.5px solid ${col.border}`, borderRadius: isOpen ? "var(--border-radius-lg) var(--border-radius-lg) 0 0" : "var(--border-radius-lg)", padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 20 }}>{ch.icon}</span>
-              <div style={{ flex: 1 }}>
-                <p style={{ margin: 0, fontWeight: 500, fontSize: 14, color: col.text }}>第{ch.num}章 · {ch.title}</p>
-                <p style={{ margin: 0, fontSize: 11, color: col.text, opacity: 0.75 }}>{ch.en} · {availCount}/{ch.cases.length} 可玩</p>
-              </div>
-              <div style={{ display: "flex", gap: 4, marginRight: 8 }}>
-                {ch.cases.map(c => (
-                  <span key={c.id} style={{ width: 8, height: 8, borderRadius: "50%", background: completedCases.includes(c.id) ? col.border : c.available ? col.text : "rgba(0,0,0,0.15)", opacity: c.available || completedCases.includes(c.id) ? 1 : 0.4 }} />
-                ))}
-              </div>
-              <span style={{ color: col.text, fontSize: 14 }}>{isOpen ? "▲" : "▼"}</span>
-            </div>
-            {isOpen && (
-              <div style={{ border: `0.5px solid ${col.border}`, borderTop: "none", borderRadius: "0 0 var(--border-radius-lg) var(--border-radius-lg)", overflow: "hidden" }}>
-                {ch.cases.map((c, i) => {
-                  const done = completedCases.includes(c.id);
-                  return (
-                    <div key={c.id} onClick={() => c.available && startFixedCase(c.id)}
-                      style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.7rem 1rem", background: done ? col.bg : "var(--color-background-primary)", borderTop: i > 0 ? `0.5px solid ${col.border}` : "none", cursor: c.available ? "pointer" : "default", opacity: c.available ? 1 : 0.55 }}>
-                      <span style={{ fontSize: 16, minWidth: 20 }}>{done ? "✅" : c.available ? "▶" : "🔒"}</span>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ margin: 0, fontSize: 13, fontWeight: c.available ? 500 : 400 }}>{c.title}</p>
-                        <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-secondary)" }}>{c.en}{!c.available && " · 即將推出"}</p>
-                      </div>
-                      {c.available && !done && <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>→</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  // ── PLAYING ───────────────────────────────────────────────────────────────
-  if (screen === "playing") return (
-    <div style={{ padding: "1.5rem", maxWidth: 640, margin: "0 auto" }}>
-      {loading && <div style={{ textAlign: "center", padding: "3rem" }}><p style={{ fontSize: 28, marginBottom: 8 }}>🤖</p><p style={{ fontWeight: 500 }}>AI 正在生成案例...</p></div>}
-      {aiError && <div style={{ background: "var(--color-background-danger)", border: "0.5px solid var(--color-border-danger)", borderRadius: "var(--border-radius-md)", padding: "1rem", marginBottom: "1rem" }}><p style={{ color: "var(--color-text-danger)", margin: 0, fontSize: 13 }}>{aiError}</p><button onClick={loadAICase} style={{ marginTop: 8, fontSize: 13, cursor: "pointer" }}>重試</button></div>}
-      {!loading && !aiError && currentCase && (<>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-          <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>步驟 {stepIdx + 1} / {totalSteps}</span>
-          <button onClick={() => setScreen("map")} style={{ fontSize: 11, padding: "3px 8px", border: "0.5px solid var(--color-border-tertiary)", borderRadius: "var(--border-radius-md)", cursor: "pointer" }}>← 地圖</button>
-        </div>
-        {stepIdx === 0 && (
-          <div style={{ background: "var(--color-background-secondary)", borderRadius: "var(--border-radius-lg)", padding: "1rem", marginBottom: "1rem", border: "0.5px solid var(--color-border-tertiary)" }}>
-            <p style={{ margin: "0 0 6px", fontWeight: 500, fontSize: 14 }}>📋 {currentCase.title}</p>
-            <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.75, whiteSpace: "pre-line" }}>{currentCase.chief}</p>
-            <div style={{ background: "var(--color-background-primary)", borderRadius: "var(--border-radius-md)", padding: "7px 10px", border: "0.5px solid var(--color-border-tertiary)" }}>
-              <p style={{ margin: 0, fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--color-text-secondary)" }}>{currentCase.vitals}</p>
-            </div>
-          </div>
-        )}
-        <div style={{ background: "var(--color-background-info)", border: "0.5px solid var(--color-border-info)", borderRadius: "var(--border-radius-md)", padding: "0.85rem 1rem", marginBottom: "0.85rem" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--color-text-info)", fontWeight: 500, whiteSpace: "pre-line" }}>{currentStep?.prompt}</p>
-        </div>
-        {currentStep?.options.map(opt => {
-          const isSel = selected.includes(opt.id), isRev = revealed.includes(opt.id);
-          let bg = "var(--color-background-primary)", border = "0.5px solid var(--color-border-secondary)";
-          if (isRev && opt.correct) { bg = "var(--color-background-success)"; border = "0.5px solid var(--color-border-success)"; }
-          else if (isRev && !opt.correct) { bg = "var(--color-background-danger)"; border = "0.5px solid var(--color-border-danger)"; }
-          else if (isSel) { bg = "var(--color-background-secondary)"; border = "0.5px solid var(--color-border-primary)"; }
-          return (
-            <div key={opt.id} onClick={() => toggleSelect(opt.id)}
-              style={{ background: bg, border, borderRadius: "var(--border-radius-md)", padding: "0.7rem 1rem", marginBottom: 8, cursor: stepDone ? "default" : "pointer" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <span style={{ minWidth: 20, fontSize: 15 }}>{isRev ? (opt.correct ? "✅" : "❌") : isSel ? "☑" : "☐"}</span>
-                <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: isSel || isRev ? 500 : 400 }}>{opt.text}</p>
-                  {isRev && <p style={{ margin: "5px 0 0", fontSize: 12, lineHeight: 1.65, color: opt.correct ? "var(--color-text-success)" : "var(--color-text-danger)", whiteSpace: "pre-line" }}>{opt.result}</p>}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        <div style={{ marginTop: "1rem", display: "flex", gap: 10 }}>
-          {!stepDone ? (
-            <button onClick={confirmStep} disabled={selected.length === 0}
-              style={{ flex: 1, padding: "0.75rem", fontSize: 14, fontWeight: 500, background: selected.length > 0 ? "var(--color-background-success)" : "var(--color-background-secondary)", color: selected.length > 0 ? "var(--color-text-success)" : "var(--color-text-tertiary)", border: "0.5px solid", borderColor: selected.length > 0 ? "var(--color-border-success)" : "var(--color-border-tertiary)", borderRadius: "var(--border-radius-md)", cursor: selected.length > 0 ? "pointer" : "default" }}>
-              確認處置 ({selected.length})
-            </button>
-          ) : (
-            <button onClick={nextStep}
-              style={{ flex: 1, padding: "0.75rem", fontSize: 14, fontWeight: 500, background: "var(--color-background-info)", color: "var(--color-text-info)", border: "0.5px solid var(--color-border-info)", borderRadius: "var(--border-radius-md)", cursor: "pointer" }}>
-              {stepIdx + 1 < totalSteps ? "下一步 →" : "查看結果 →"}
-            </button>
-          )}
-        </div>
-        <div style={{ marginTop: "0.75rem", display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--color-text-secondary)" }}>
-          <span>⭐ {score}</span><span>❌ {mistakes}</span>
-        </div>
-      </>)}
-    </div>
-  );
-
-  // ── RESULT ────────────────────────────────────────────────────────────────
-  if (screen === "result") return (
-    <div style={{ padding: "2rem 1.5rem", maxWidth: 600, margin: "0 auto" }}>
-      <h2 style={{ fontSize: 20, fontWeight: 500, marginBottom: 4 }}>📊 案例完成</h2>
-      <p style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: "1.25rem" }}>{currentCase?.title}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: "1.25rem" }}>
-        <div style={{ background: "var(--color-background-secondary)", borderRadius: "var(--border-radius-md)", padding: "0.85rem", textAlign: "center" }}>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-secondary)" }}>得分</p>
-          <p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 500, color: score >= 60 ? "var(--color-text-success)" : "var(--color-text-warning)" }}>{Math.min(score, 100)}</p>
-        </div>
-        <div style={{ background: "var(--color-background-secondary)", borderRadius: "var(--border-radius-md)", padding: "0.85rem", textAlign: "center" }}>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-secondary)" }}>失誤</p>
-          <p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 500, color: mistakes === 0 ? "var(--color-text-success)" : "var(--color-text-danger)" }}>{mistakes}</p>
-        </div>
-      </div>
-      <div style={{ background: "var(--color-background-success)", border: "0.5px solid var(--color-border-success)", borderRadius: "var(--border-radius-lg)", padding: "1rem", marginBottom: "1.25rem" }}>
-        <p style={{ margin: "0 0 4px", fontWeight: 500, fontSize: 13, color: "var(--color-text-success)" }}>🏥 案例結局</p>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.7, color: "var(--color-text-success)", whiteSpace: "pre-line" }}>{currentCase?.outcome}</p>
-      </div>
-      <div style={{ marginBottom: "1.25rem" }}>
-        <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>📝 處置回顧</p>
-        {log.map((l, i) => (
-          <div key={i} style={{ borderLeft: `3px solid ${l.correct ? "var(--color-border-success)" : l.missed ? "var(--color-border-warning)" : "var(--color-border-danger)"}`, paddingLeft: 10, marginBottom: 8 }}>
-            <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: "var(--color-text-secondary)", whiteSpace: "pre-line" }}>{l.text}</p>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={() => setScreen("map")} style={{ flex: 1, padding: "0.75rem", fontSize: 13, background: "var(--color-background-info)", color: "var(--color-text-info)", border: "0.5px solid var(--color-border-info)", borderRadius: "var(--border-radius-md)", cursor: "pointer" }}>回地圖</button>
-        <button onClick={() => { setScreen("menu"); setDifficulty(null); }} style={{ flex: 1, padding: "0.75rem", fontSize: 13, border: "0.5px solid var(--color-border-tertiary)", borderRadius: "var(--border-radius-md)", cursor: "pointer" }}>主選單</button>
-      </div>
-    </div>
-  );
-
-  return null;
+    renderQuiz(chk);
+  }, 500);
 }
+
+function showMenu() {
+  var cs = CDEF[G.cid];
+  var rem = cs.checks.filter(function(c) { return !G.done[c.id]; });
+  if (rem.length === 0) { appHTML('<div class="al ag">所有關鍵檢查已完成！</div>'); showFinal(); return; }
+  var wrap = document.createElement('div'); wrap.className = 'cd';
+  var t = document.createElement('div'); t.className = 'ct'; t.textContent = '選擇下一步檢查或處置';
+  wrap.appendChild(t);
+  var grid = document.createElement('div'); grid.className = 'cg';
+  cs.checks.forEach(function(ch, i) {
+    var used = !!G.done[ch.id];
+    var b = document.createElement('button');
+    b.className = 'cbtn' + (used ? ' used' : '');
+    b.innerHTML = '<span>' + ch.ic + '</span><span>' + (used ? '✓ ' : '') + ch.lb + '<br><small style="color:#5a6478;font-weight:400">' + ch.ds + '</small></span>';
+    if (!used) { b.setAttribute('data-i', i); b.onclick = function() { doCheck(parseInt(this.getAttribute('data-i'))); }; }
+    grid.appendChild(b);
+  });
+  wrap.appendChild(grid);
+  appEl(wrap);
+  document.getElementById('sa').scrollTop = 99999;
+}
+
+function showFinal() {
+  var cs = CDEF[G.cid];
+  var dl = Object.values(G.done).map(function(c) { return c.ic + ' ' + c.lb; }).join(', ');
+  var col = G.score>=70 ? '#22c55e' : G.score>=40 ? '#f59e0b' : '#ef4444';
+  var wrap = document.createElement('div'); wrap.className = 'cd'; wrap.style.borderColor = '#2dd4bf';
+  wrap.innerHTML = '<div class="ct" style="color:#2dd4bf">🏁 案例結束</div>'
+    + '<div class="cb"><strong>最終診斷：</strong>' + cs.diag + '<br><br><strong>完成的處置：</strong><br>' + dl + '</div>';
+  appEl(wrap);
+  var scBox = document.createElement('div'); scBox.className = 'scb'; scBox.style.padding = '14px';
+  scBox.innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:6px">最終得分</div>'
+    + '<div style="font-size:32px;font-weight:700;color:' + col + '">' + G.score + ' / 100</div>';
+  appEl(scBox);
+  var nb = document.createElement('button'); nb.className = 'nb'; nb.textContent = '← 回主選單';
+  nb.style.marginTop = '8px'; nb.onclick = back;
+  appEl(nb);
+}
+
+function selD(d, btn) {
+  G.diff = d;
+  document.querySelectorAll('#dbts .cbtn').forEach(function(b) { b.style.borderColor='#3a4566'; b.style.color='#e8eaf0'; });
+  btn.style.borderColor = '#2dd4bf'; btn.style.color = '#2dd4bf';
+}
+
+function go(cid) {
+  G.cid = cid; G.score = 100; G.done = {}; G.qs = {};
+  document.getElementById('menu').style.display = 'none';
+  var g = document.getElementById('game'); g.style.display = 'flex'; g.style.flexDirection = 'column';
+  document.getElementById('dl').innerHTML = '';
+  updScore(0);
+  if (cid === 'ai') { startAI(); return; }
+  var cs = CDEF[cid];
+  document.getElementById('ptn').textContent = cs.ptName;
+  document.getElementById('pts').textContent = cs.ptSub;
+  document.getElementById('ptb').innerHTML = '<span class="bdg by">待評估</span>';
+  setV(cs.vitals);
+  setPhase(1, '主訴接收', cs.phases);
+  document.getElementById('tt').textContent = cs.diag;
+  var sc = document.createElement('div');
+  var ch = document.createElement('div'); ch.className = 'cd';
+  var ct = document.createElement('div'); ct.className = 'ct'; ct.textContent = cs.chiefTitle; ch.appendChild(ct);
+  var cb = document.createElement('div'); cb.className = 'cb'; cb.textContent = cs.chiefBody; ch.appendChild(cb);
+  sc.appendChild(ch);
+  var al = document.createElement('div'); al.className = 'al ' + cs.alertCls; al.textContent = cs.alertTxt;
+  sc.appendChild(al);
+  setScene(sc);
+  setTimeout(function() { setPhase(2, '初步評估'); showMenu(); }, 800);
+}
+
+function startAI() {
+  document.getElementById('ptn').textContent = '載入中...';
+  var sc = document.createElement('div');
+  sc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:20px;color:#5a6478;font-size:12px"><div class="sp"><span></span><span></span><span></span></div> AI 正在生成案例...</div>';
+  setScene(sc);
+  var prompt = '產生一個產科急症案例。只輸出JSON無任何markdown：'
+    + '{"ptName":"中文姓名","ga":"34+2","g":2,"p":1,"age":28,'
+    + '"vitals":{"bp":"168/110","hr":"95","rr":"18","spo2":"98"},'
+    + '"diagnosis":"最終診斷","chief":"場景描述兩句純文字",'
+    + '"checks":[{"id":"c1","ic":"🧪","lb":"檢查名稱","ds":"簡述",'
+    + '"rh":"<table class=rt><tr><td>項目</td><td class=ok>數值</td></tr></table>",'
+    + '"q":"判讀問題","opts":["A","B","C","D"],"cor":0,"exp":"解釋"}]}'
+    + ' 難度：' + G.diff + '。急症類別隨機：胎盤早剝/臍帶脫垂/羊水栓塞/早產PPROM/宮外孕/肩難產/產後大出血/子宮破裂。';
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:MODEL, max_tokens:1500, messages:[{ role:'user', content:prompt }] }) })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var txt = data.content.map(function(c) { return c.text||''; }).join('');
+    var j = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    CDEF['_ai'] = {
+      ptName:j.ptName, ptSub:'G'+j.g+'P'+j.p+' · '+j.age+' 歲', diag:j.diagnosis,
+      vitals:{ bp:j.vitals.bp, hr:j.vitals.hr, rr:j.vitals.rr, spo2:j.vitals.spo2, fhr:'—', ga:j.ga },
+      phases:6, chiefTitle:'案例', chiefBody:j.chief, alertCls:'ay', alertTxt:'請開始評估',
+      checks:(j.checks||[]).map(function(ch) {
+        return { id:ch.id, ic:ch.ic||'🔍', lb:ch.lb, ds:ch.ds||'',
+          q:ch.q||'你的判斷？', opts:ch.opts||['A','B','C','D'], cor:ch.cor||0, exp:ch.exp||'正確。',
+          rFn: function() { var e=document.createElement('div'); e.innerHTML=ch.rh||''; return e; } };
+      })
+    };
+    G.cid = '_ai';
+    go('_ai');
+  })
+  .catch(function(e) {
+    document.getElementById('sa').innerHTML = '<div class="al ar">AI生成失敗：' + e.message + '</div>';
+  });
+}
+
+function back() {
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('menu').style.display = 'flex';
+  G.done = {}; G.qs = {};
+}
+</script>
+</body></html>
