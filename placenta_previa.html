@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前置胎盤臨床模擬 Placenta Previa Simulation</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+  .container{max-width:680px;margin:0 auto;padding:16px}
+  button{cursor:pointer;font-family:inherit}
+  .btn-back{background:transparent;border:1px solid #334155;color:#94a3b8;border-radius:8px;padding:6px 14px;font-size:13px}
+  .btn-primary{background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-weight:600;font-size:14px}
+  .btn-next{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-weight:700;font-size:14px;margin-top:14px}
+  .btn-restart{background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:15px;font-weight:700}
+  .card{background:#1e293b;border-radius:14px;padding:20px;margin-bottom:14px}
+  .card-dark{background:#0f172a;border-radius:12px;padding:16px;margin-bottom:14px}
+  .vitals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}
+  .vital-cell{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}
+  .vital-cell.warn{background:#fff7ed;border-color:#fed7aa}
+  .vital-label{font-size:10px;color:#64748b;font-weight:600}
+  .vital-value{font-size:13px;color:#1e293b;font-weight:700;margin-top:2px}
+  .vital-value.warn{color:#c2410c}
+  .opt-btn{width:100%;text-align:left;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:8px;border:1.5px solid #334155;background:#1e293b;color:#e2e8f0;transition:background 0.2s,border-color 0.2s}
+  .opt-btn:disabled{cursor:default}
+  .opt-btn.correct{background:#14532d;border-color:#4ade80;color:#bbf7d0}
+  .opt-btn.wrong{background:#450a0a;border-color:#f87171;color:#fca5a5}
+  .opt-btn.show-correct{background:#1e3a2f;border-color:#4ade80;color:#86efac}
+  .quiz-btn{width:100%;text-align:left;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:7px;border:1.5px solid #334155;background:#0f172a;color:#e2e8f0}
+  .quiz-btn.correct{background:#14532d;border-color:#4ade80;color:#bbf7d0}
+  .quiz-btn.wrong{background:#450a0a;border-color:#f87171;color:#fca5a5}
+  .quiz-btn.show-correct{background:#1e3a2f;border-color:#4ade80;color:#86efac}
+  .report-box{background:#0c1a2e;border:1px solid #1e40af;border-radius:12px;padding:16px;margin-bottom:14px}
+  .explain-box{background:#0c1a2e;border:1px solid #1e40af;border-radius:8px;padding:12px;margin-top:10px;color:#93c5fd;font-size:13px;line-height:1.7}
+  .header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .score-positive{color:#4ade80;font-weight:700}
+  .score-negative{color:#f87171;font-weight:700}
+  .diff-btn{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:16px 20px;width:100%;text-align:left;margin-bottom:12px;transition:transform 0.1s}
+  .diff-btn:hover{transform:scale(1.02)}
+  pre{white-space:pre-wrap;font-family:inherit}
+  .tag{font-size:12px;font-weight:600;color:#64748b;margin-bottom:4px}
+  .takeaway{color:#e2e8f0;font-size:13px;margin-bottom:6px}
+  #screen-select,#screen-game,#screen-end{display:none}
+  #screen-select.active,#screen-game.active,#screen-end.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1: DIFFICULTY SELECT
+════════════════════════════════════════════════════════ -->
+<div id="screen-select" class="active">
+  <div class="container" style="display:flex;align-items:center;justify-content:center;min-height:100vh">
+    <div style="max-width:500px;width:100%;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🏥</div>
+      <h1 style="color:#f1f5f9;font-size:22px;font-weight:800;margin-bottom:4px">前置胎盤臨床模擬</h1>
+      <p style="color:#94a3b8;font-size:14px;margin-bottom:8px">Placenta Previa Clinical Simulation</p>
+      <p style="color:#64748b;font-size:12px;margin-bottom:28px">資料來源：UpToDate 2024 / 2026</p>
+      <button class="diff-btn" id="btn-student" onclick="startGame('student')">
+        <div style="font-size:18px;font-weight:800;color:#16a34a">🟢 醫學生 Medical Student</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px">G1P0・孕32週・基礎診斷流程</div>
+      </button>
+      <button class="diff-btn" id="btn-resident" onclick="startGame('resident')">
+        <div style="font-size:18px;font-weight:800;color:#ca8a04">🟡 住院醫師 Resident</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px">G3P2・孕30週・PAS多科整合</div>
+      </button>
+      <button class="diff-btn" id="btn-attending" onclick="startGame('attending')">
+        <div style="font-size:18px;font-weight:800;color:#dc2626">🔴 主治醫師 Attending</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px">G4P3・孕28週・多重合併症+倫理困境</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 2: GAME
+════════════════════════════════════════════════════════ -->
+<div id="screen-game">
+  <div class="container">
+    <div class="header-bar">
+      <button class="btn-back" onclick="resetGame()">← 返回</button>
+      <div style="font-size:13px;color:#94a3b8">
+        <span id="hdr-diff"></span>&nbsp;&nbsp;
+        第<span id="hdr-act"></span>/<span id="hdr-total"></span>幕&nbsp;&nbsp;
+        分數：<span id="hdr-score"></span>
+      </div>
+    </div>
+    <div class="card" id="scene-card">
+      <div class="tag" id="act-title"></div>
+      <p id="act-scene" style="color:#e2e8f0;font-size:14px;line-height:1.7"></p>
+      <div class="vitals-grid" id="vitals-grid"></div>
+    </div>
+    <div id="options-area"></div>
+    <div id="report-area" style="display:none"></div>
+    <div id="quiz-area" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 3: END
+════════════════════════════════════════════════════════ -->
+<div id="screen-end">
+  <div class="container" style="display:flex;align-items:center;justify-content:center;min-height:100vh">
+    <div style="max-width:520px;width:100%;background:#1e293b;border-radius:16px;padding:32px;text-align:center">
+      <div id="end-icon" style="font-size:56px"></div>
+      <h2 id="end-title" style="color:#f1f5f9;font-size:22px;margin:12px 0 6px"></h2>
+      <p id="end-body" style="color:#94a3b8;font-size:14px;margin-bottom:20px"></p>
+      <div style="background:#0f172a;border-radius:12px;padding:16px;margin-bottom:20px">
+        <div style="color:#94a3b8;font-size:13px">總得分 Total Score</div>
+        <div id="end-score" style="font-size:40px;font-weight:800"></div>
+        <div id="end-pct" style="color:#64748b;font-size:13px"></div>
+      </div>
+      <div style="background:#0f172a;border-radius:12px;padding:16px;text-align:left;margin-bottom:20px">
+        <div style="color:#fbbf24;font-weight:700;font-size:13px;margin-bottom:10px">📌 Take-home Messages</div>
+        <div id="end-keys"></div>
+      </div>
+      <button class="btn-restart" onclick="resetGame()">重新開始</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+var ACTS = {
+student: [
+  {
+    actNum:1, title:"第一幕：急診評估",
+    scene:"孕婦陳小美，29歲，初產婦（G1P0），孕32週。主訴突發無痛性陰道出血，衛生棉半濕。無腹痛、無宮縮。",
+    vitals:{"BP":"106/68 mmHg","HR":"94 bpm","RR":"18次/分","SpO2":"98%","Temp":"36.8°C","FHR":"148 bpm"},
+    options:[
+      {id:"A",text:"立即安排超音波確認胎盤位置，暫緩內診",correct:true,feedback:"✅ 正確！前置胎盤禁止內診，TVUS 是首選評估工具。"},
+      {id:"B",text:"先執行陰道內診評估子宮頸擴張程度",correct:false,feedback:"❌ 錯誤！前置胎盤未排除前，內診可能引發大出血，嚴禁執行。"},
+      {id:"C",text:"給予安慰，門診追蹤即可",correct:false,feedback:"❌ 錯誤！無痛性出血需警覺前置胎盤，應立即評估而非延誤。"},
+      {id:"D",text:"立即剖腹產",correct:false,feedback:"❌ 過度激進！未確認診斷前不應立即手術。"}
+    ],
+    report:{title:"超音波報告",content:"胎盤後壁，完全覆蓋子宮頸內口（Complete Placenta Previa）。\n胎盤下緣至子宮頸內口距離：-15mm。\n羊水量正常。胎兒生長符合孕週。"},
+    quiz:{q:"超音波確認完全性前置胎盤後，下一步最重要的處置是？",
+      opts:["立即剖腹產","住院觀察、建立靜脈通路、備血，監測母胎狀況","給予安胎藥物促進宮縮停止","執行羊膜穿刺評估肺部成熟度"],
+      ans:1,explain:"前置胎盤無活動性出血且孕32週，正確做法是住院評估、建立大口徑靜脈通路、備血（Type & Screen），持續監測生命徵象及胎心音。不應立即手術，但需隨時準備。"}
+  },
+  {
+    actNum:2, title:"第二幕：住院觀察",
+    scene:"住院後監測12小時，出血已停止。今晨護理師呼叫：病人感到輕微下腹「緊緊的」，無痛性，CTG顯示偶發子宮收縮。",
+    vitals:{"BP":"108/70 mmHg","HR":"88 bpm","RR":"18次/分","SpO2":"99%","Temp":"36.7°C","FHR":"152 bpm"},
+    options:[
+      {id:"A",text:"評估出血量、給予類固醇促胎肺成熟，繼續監測",correct:true,feedback:"✅ 正確！孕32週需給予Betamethasone 12mg IM q24h × 2劑，促胎肺成熟。"},
+      {id:"B",text:"立刻安排緊急剖腹產",correct:false,feedback:"❌ 過度激進！出血已停止，生命徵象穩定，不需緊急手術。"},
+      {id:"C",text:"給予Indomethacin安胎",correct:false,feedback:"❌ 錯誤！Indomethacin 抑制血小板功能，前置胎盤禁用。應選 Nifedipine。"},
+      {id:"D",text:"出院回家臥床休息",correct:false,feedback:"❌ 錯誤！前置胎盤患者需持續住院監測，不可出院。"}
+    ],
+    report:{title:"實驗室 + CTG 報告",content:"Hb: 10.8 g/dL　Platelets: 198K　Fibrinogen: 312 mg/dL\nCTG：NST reactive，無異常減速\n子宮收縮：偶發，每20-30分鐘一次，無規則性"},
+    quiz:{q:"孕32週前置胎盤，Hb 10.8，出血已停，輕微不規則收縮。以下何者最不適當？",
+      opts:["給予Betamethasone 12mg IM q24h × 2劑","每4-6小時評估出血量","給予Indomethacin作為安胎藥","持續胎心音監測"],
+      ans:2,explain:"Indomethacin 會抑制血小板功能，對前置胎盤患者特別危險，且有潛在胎兒副作用（動脈導管早閉）。應選用 Nifedipine 等鈣離子阻斷劑。"}
+  },
+  {
+    actNum:3, title:"第三幕：孕37週分娩決策",
+    scene:"孕婦穩定至孕37週，複查超音波仍顯示完全性前置胎盤，胎位頭先露。患者詢問是否可以自然生產。",
+    vitals:{"BP":"110/72 mmHg","HR":"80 bpm","RR":"16次/分","SpO2":"99%","Temp":"36.8°C","FHR":"144 bpm"},
+    options:[
+      {id:"A",text:"安排選擇性剖腹產（36-37+6週）",correct:true,feedback:"✅ 正確！完全性前置胎盤必須剖腹產，最佳時機為36-37+6週。"},
+      {id:"B",text:"嘗試陰道分娩，有異常再處理",correct:false,feedback:"❌ 嚴重錯誤！完全性前置胎盤是陰道分娩的絕對禁忌症。"},
+      {id:"C",text:"繼續等待至孕39週再手術",correct:false,feedback:"❌ 錯誤！延誤手術增加自發出血風險，不建議等至39週。"},
+      {id:"D",text:"引產合併硬膜外麻醉",correct:false,feedback:"❌ 錯誤！前置胎盤不可引產，陰道分娩是禁忌。"}
+    ],
+    report:{title:"術前評估報告",content:"超音波：完全前置胎盤（後壁），未見胎盤植入徵象（no PAS signs）\n備血：2-4 units pRBC\n麻醉計畫：神經軸麻醉（Spinal/Epidural）\n手術室：備好子宮切除器械（備用）"},
+    quiz:{q:"前置胎盤剖腹產術後，下段子宮收縮不良持續滲血，已給Oxytocin仍無效，下一步？",
+      opts:["立即子宮切除","先嘗試子宮球囊填塞（Bakri balloon）","停止手術等出血自行停止","給予更多Oxytocin"],
+      ans:1,explain:"PPH 處理是分步驟：縮宮素 + TXA → 局部縫合 → 子宮壓迫縫合 / 球囊填塞 → 動脈栓塞 → 子宮切除。Bakri 球囊對下段出血特別有效，應先嘗試保守治療。"}
+  }
+],
+resident: [
+  {
+    actNum:1, title:"第一幕：大量出血 + 疑似 PAS",
+    scene:"林淑芬，35歲，G3P2（前兩胎均剖腹產），孕30週。主訴大量陰道出血（估計100mL），頭暈，無腹痛。20週超音波：前壁前置胎盤。",
+    vitals:{"BP":"95/60 mmHg ⬇","HR":"118 bpm ⬆","RR":"20次/分","SpO2":"97%","Temp":"36.9°C","FHR":"162 bpm ⬆"},
+    options:[
+      {id:"A",text:"建立雙管大口徑IV、備血4u、超音波評估PAS、住院",correct:true,feedback:"✅ 正確！血流動力學不穩定+PAS風險，需同步穩定循環與影像評估。"},
+      {id:"B",text:"單管IV輸液後觀察，等血壓改善再超音波",correct:false,feedback:"❌ 不足！兩次剖腹產+大出血必須立即啟動大量備血及PAS評估。"},
+      {id:"C",text:"立即剖腹產，不需先做超音波",correct:false,feedback:"❌ 錯誤！需先影像確認PAS程度，才能做好術前多科規劃。"},
+      {id:"D",text:"給予止血藥物後出院",correct:false,feedback:"❌ 危險！血壓95/60，心跳118，需緊急住院處置。"}
+    ],
+    report:{title:"超音波評估報告",content:"前壁前置胎盤，完全覆蓋子宮頸內口。\n⚠️ 疑似 Placenta Accreta Spectrum（PAS）：\n- 胎盤後方低回音區消失（Loss of retroplacental hypoechoic zone）\n- 多個 Lacunae（Swiss cheese pattern）\n- 膀胱壁局部不規則\n建議 MRI 進一步評估侵犯程度。\nHb: 9.2 g/dL  Platelets: 168K  Fibrinogen: 290 mg/dL  PT/APTT: 正常"},
+    quiz:{q:"超音波疑似PAS percreta侵犯膀胱，下一步最重要的是？",
+      opts:["立即手術，不需等MRI","安排骨盆腔MRI + 多科會診（婦產、外科、泌尿、麻醉、血庫）","單純觀察，等到34週再評估","給予類固醇後出院等待自然分娩"],
+      ans:1,explain:"PAS percreta 需精確評估膀胱侵犯範圍（MRI最優），並提早完成多科會診規劃，包含預設手術策略、備血計畫及 Cell Saver。"}
+  },
+  {
+    actNum:2, title:"第二幕：MRI確認Percreta，手術規劃",
+    scene:"MRI結果出爐：胎盤侵犯穿透子宮壁，達膀胱後壁（Placenta Percreta）。目前孕31週，出血已止，生命徵象相對穩定。多科會議召開。",
+    vitals:{"BP":"102/68 mmHg","HR":"96 bpm","RR":"18次/分","SpO2":"98%","Temp":"36.8°C","FHR":"148 bpm"},
+    options:[
+      {id:"A",text:"計畫34-35週選擇性手術，多科整合，備Cell Saver",correct:true,feedback:"✅ 正確！PAS percreta最佳手術時機為34-35週，需泌尿外科+婦產+麻醉同台。"},
+      {id:"B",text:"等到孕37週再手術，同一般前置胎盤",correct:false,feedback:"❌ 錯誤！PAS需提早至34-35週，降低自發大出血風險。"},
+      {id:"C",text:"立即手術，孕31週也無妨",correct:false,feedback:"❌ 若無緊急指徵，應等到更成熟孕週以改善胎兒預後。"},
+      {id:"D",text:"不需多科會診，婦產科可以獨立處理",correct:false,feedback:"❌ 錯誤！Percreta侵犯膀胱需泌尿外科協助，否則術中大出血風險極高。"}
+    ],
+    report:{title:"MRI報告 + 多科會議計畫",content:"MRI骨盆腔：Placenta percreta，胎盤穿透子宮後壁，局部浸潤膀胱後壁（約3cm範圍）。\n未見輸尿管受壓。\n\n多科手術計畫：\n• 婦產科（主刀）+ 泌尿外科（膀胱修補備用）\n• 麻醉：全身麻醉，建議動脈導管監測\n• 血庫：備10u pRBC + 10u FFP + 10u platelets + Cell Saver\n• 計畫孕34-35週選擇性剖腹產\n• 術前介入放射科評估：雙側子宮動脈栓塞/球囊備用"},
+    quiz:{q:"PAS患者術中大出血，Hb 6.2，輸血中，Fibrinogen 180 mg/dL，下一步需補充？",
+      opts:["只需繼續輸pRBC即可","補充Cryoprecipitate（Fibrinogen < 200 mg/dL 的指標）","立即停止手術","給予更多Oxytocin"],
+      ans:1,explain:"Fibrinogen < 200 mg/dL 是補充 Cryoprecipitate 的指標，每包可提升 Fibrinogen 約 5-10 mg/dL。MTP 1:1:1（pRBC:FFP:Platelets）需同步執行。"}
+  },
+  {
+    actNum:3, title:"第三幕：術中大出血",
+    scene:"孕35週選擇性剖腹產。切開子宮後胎盤附著面大量出血，估計失血3200mL。Oxytocin及Ergotamine無效。",
+    vitals:{"BP":"80/50 mmHg ⬇⬇","HR":"130 bpm ⬆⬆","RR":"24次/分","SpO2":"94%","Temp":"35.9°C（低體溫）","FHR":"N/A（胎兒已娩出）"},
+    options:[
+      {id:"A",text:"啟動MTP（1:1:1）+ 準備子宮切除",correct:true,feedback:"✅ 正確！MTP 1:1:1 啟動，PAS percreta 術中大出血最終通常需要子宮切除。"},
+      {id:"B",text:"繼續等縮宮藥發揮效果",correct:false,feedback:"❌ 危險！血壓80/50，Oxytocin/Ergotamine已失敗，需立即升級處置。"},
+      {id:"C",text:"Bakri balloon填塞後縫合",correct:false,feedback:"❌ Percreta大出血球囊效果有限，PAS通常需根治性手術（子宮切除）。"},
+      {id:"D",text:"輸血後等待自發止血",correct:false,feedback:"❌ 等待策略在3200mL失血且血壓崩潰時不可行。"}
+    ],
+    report:{title:"術中即時數據",content:"術中失血估計：3200mL\nHb: 6.8 g/dL（下降中）\nPlatelets: 62K ⬇\nFibrinogen: 156 mg/dL ⬇（< 200，需補Cryoprecipitate）\nPT: 延長（18秒）\nCell Saver回收：480mL\nCore temp: 35.9°C（需保溫）\n\n已執行：雙側子宮動脈結紮 → 無效 → 決定子宮切除"},
+    quiz:{q:"MTP執行中，已輸6u pRBC + 6u FFP + 1 apheresis platelets，下一步監測重點？",
+      opts:["只看血壓即可","監測 iCa2+（FFP中的Citrate會螯合鈣離子）、體溫、Fibrinogen、乳酸","只需注意尿量","停止輸血，等實驗室結果"],
+      ans:1,explain:"大量輸血三大致死三角：低體溫、酸中毒、凝血病變（Lethal Triad）。iCa²⁺ 下降需補充 CaCl₂，體溫需積極保溫，持續監測 Fibrinogen 及乳酸評估組織灌流。"}
+  }
+],
+attending: [
+  {
+    actNum:1, title:"第一幕：大量出血 + 拒絕輸血 + 疑似PAS",
+    scene:"李美玲，41歲，G4P3（三次剖腹產），孕28週。主訴大量出血（約200mL），輕微宮縮。患者為耶和華見證人，明確拒絕異體輸血。前次妊娠前置胎盤史。合併妊娠期高血壓，使用低劑量Aspirin。",
+    vitals:{"BP":"95/60 mmHg ⬇","HR":"122 bpm ⬆","RR":"22次/分","SpO2":"95% ⬇","Temp":"36.7°C","FHR":"178 bpm ⬆"},
+    options:[
+      {id:"A",text:"建立IV、備Cell Saver（自體血回收）、倫理諮詢、超音波",correct:true,feedback:"✅ 正確！尊重患者意願的同時，積極準備一切允許的替代方案：Cell Saver、TXA、EPO、凝血因子。"},
+      {id:"B",text:"先說服患者接受輸血，否則不手術",correct:false,feedback:"❌ 不當！有行為能力成人的拒絕醫療決定必須尊重，不可以治療為要挾。"},
+      {id:"C",text:"請家屬簽同意書代為決定輸血",correct:false,feedback:"❌ 錯誤！清醒有行為能力的患者，家屬無法覆蓋其明確意願。"},
+      {id:"D",text:"先觀察，等出血更多再決定",correct:false,feedback:"❌ 危險！FHR 178，SpO2 95%，母胎均已不穩定。"}
+    ],
+    report:{title:"超音波 + 初步評估",content:"⚠️ 前壁前置胎盤，高度疑似PAS percreta（三次剖腹產史+超音波Lacunae+膀胱壁不清）\n胎心音：178 bpm（心搏過速，需密切監測）\nHb: 9.8 g/dL  Platelets: 88K ⬇（低血小板）\nFibrinogen: 198 mg/dL（臨界值，需注意）\nAST/ALT: 升高（x2正常值）\n\n⚠️ 倫理記錄：患者已簽署拒絕異體血品聲明（Advance directive）\n允許：Cell Saver自體血、TXA、靜脈鐵劑、EPO、凝血因子濃縮製劑"},
+    quiz:{q:"患者拒絕異體輸血但同意Cell Saver。術中Cell Saver回收血液回輸的禁忌症？",
+      opts:["失血超過1000mL","羊水污染（未分離過濾）或惡性腫瘤手術","患者年齡>40歲","使用過TXA的血液"],
+      ans:1,explain:"Cell Saver在羊水污染時需使用白血球過濾器（leukocyte depletion filter）。惡性腫瘤手術為相對禁忌（可能回輸腫瘤細胞）。羊水中的組織因子若未充分過濾，有引發DIC的風險。"}
+  },
+  {
+    actNum:2, title:"第二幕：重度子癇前症 + DIC傾向 + 胎窘",
+    scene:"住院後6小時，患者出現頭痛、右上腹痛。血壓急升。實驗室結果顯示HELLP徵兆。CTG出現變異性減速。",
+    vitals:{"BP":"158/105 mmHg ⬆⬆","HR":"128 bpm ⬆","RR":"20次/分","SpO2":"93% ⬇","Temp":"37.1°C","FHR":"變異性減速"},
+    options:[
+      {id:"A",text:"給MgSO4預防子癇 + 降壓（Hydralazine/Labetalol）+ 同步評估終止妊娠",correct:true,feedback:"✅ 正確！BP≥160/110 + HELLP徵兆 + 胎窘 = 多重合併症，需同步處置、準備緊急手術。"},
+      {id:"B",text:"先穩定血壓再決定是否手術",correct:false,feedback:"❌ 不足！孕28週合併HELLP+胎窘，等待時間可能引發DIC或子癇症。"},
+      {id:"C",text:"只給MgSO4，等血壓自行恢復",correct:false,feedback:"❌ 錯誤！BP 158/105需積極降壓，否則腦出血風險極高。"},
+      {id:"D",text:"轉介至一般外科處理右上腹痛",correct:false,feedback:"❌ 錯誤！右上腹痛是 HELLP 肝包膜膨脹的表現，屬婦產科急症。"}
+    ],
+    report:{title:"緊急實驗室 + CTG",content:"⚠️ HELLP進展：\nAST: 380 U/L ⬆⬆ | ALT: 290 U/L ⬆⬆\nLDH: 890 U/L ⬆\nPlatelets: 62K ⬇⬇（Class I HELLP）\nFibrinogen: 165 mg/dL ⬇（DIC傾向）\nHb: 8.4 g/dL（下降）\nTotal Bilirubin: 2.8 mg/dL ⬆\n\nCTG：變異性減速，基線心率160，基線變異性降低\n→ Category II FHR tracing（需密切監測）"},
+    quiz:{q:"孕28週合併重度子癇前症，需給MgSO4。同時患者有Platelets 62K，MgSO4的主要監測重點？",
+      opts:["只監測血壓","監測呼吸速率（<12次/分為毒性徵象）、膝反射、尿量（>25mL/hr），備Calcium Gluconate拮抗","只需監測胎心音","MgSO4低血小板時禁用"],
+      ans:1,explain:"MgSO4毒性依序：膝反射消失 → 呼吸抑制 → 心跳停止。拮抗劑：10% Calcium gluconate 10mL IV緩推。尿量<25mL/hr需減量。低血小板非MgSO4禁忌症。"}
+  },
+  {
+    actNum:3, title:"第三幕：Category III + 家屬代簽 + 緊急剖腹產",
+    scene:"患者突然意識改變，CTG轉為Category III（持續性晚期減速+基線變異性消失）。患者丈夫堅持要求輸血救命。醫療團隊面臨倫理困境。",
+    vitals:{"BP":"170/115 mmHg ⬆⬆","HR":"138 bpm ⬆","RR":"26次/分","SpO2":"91% ⬇⬇","Temp":"37.3°C","FHR":"Cat.III：持續晚期減速，變異性消失"},
+    options:[
+      {id:"A",text:"緊急剖腹產 + Cell Saver（尊重患者聲明）+ MgSO4持續",correct:true,feedback:"✅ 正確！Cat.III = 立即剖腹產的絕對指徵。患者清醒時的書面意願優先於家屬意見。"},
+      {id:"B",text:"依丈夫要求輸異體血，家屬有決定權",correct:false,feedback:"❌ 錯誤！患者有書面Advance directive，清醒時的意願在其失能後仍有效，家屬無法覆蓋。"},
+      {id:"C",text:"等倫理委員會開會決定後再手術",correct:false,feedback:"❌ 危險！Cat.III需立即手術，等待倫理委員會等同讓胎兒陷入極高風險。"},
+      {id:"D",text:"繼續觀察CTG，等恢復Cat.I再決定",correct:false,feedback:"❌ 嚴重錯誤！Cat.III對復甦措施無反應=立即終止妊娠，沒有等待空間。"}
+    ],
+    report:{title:"緊急評估 + 倫理記錄",content:"CTG：Category III — 持續晚期減速，基線變異性消失，基線下降至100 bpm\n⚠️ 胎兒酸血症高度可疑\n\n倫理分析：\n• 患者書面Advance Directive：拒絕異體血品，簽署於有行為能力時\n• 意識改變可能因：子癇前症腦病、低氧、低灌流\n• 法律原則：有行為能力時之明確拒絕，在其失能後仍有效\n• 家屬（配偶）：無權覆蓋患者書面意願\n• 處置：積極使用Cell Saver + TXA + 凝血因子，詳細記錄"},
+    quiz:{q:"Category III FHR tracing的定義包含下列何者？（選最完整的答案）",
+      opts:["只需要晚期減速即可診斷","基線變異性消失合併：重複性晚期減速、重複性變異性減速、或心搏過緩；或正弦波型","任何減速都算Category III","基線心率<100 bpm即為Category III"],
+      ans:1,explain:"ACOG Category III定義：基線變異性消失 + 重複性晚期減速、重複性變異性減速或心搏過緩；或正弦波型（Sinusoidal pattern）。需立即復甦（側臥、吸氧、停Oxytocin）並準備緊急分娩。"}
+  }
+]
+};
+
+var ENDINGS = {
+  student:{icon:"👶",title:"母嬰平安",body:"剖腹產順利，Apgar 9/10，術中出血400mL，無需輸血。",
+    keys:["前置胎盤診斷前禁止內診，TVUS 是首選評估工具","孕<34週穩定患者需給予類固醇促胎肺成熟","完全性前置胎盤必須剖腹，最佳時機36-37+6週"]},
+  resident:{icon:"🏥",title:"母子均平安（需ICU）",body:"母親接受子宮切除術及膀胱修補，ICU恢復順利。新生兒孕35週早產，NICU照護後健康出院。",
+    keys:["兩次以上剖腹產+前置胎盤 = 必須排除PAS（超音波+MRI）","PAS percreta需多科整合手術，提早至34-35週計畫分娩","大出血啟動MTP（1:1:1），Fibrinogen < 200 mg/dL立即補充Cryoprecipitate"]},
+  attending:{icon:"⚖️",title:"倫理與醫療的平衡",body:"母親：Cell Saver成功，未使用異體血，子宮次全切除，ICU 5天後轉病房。嬰兒：孕28週NICU照護，3個月後健康出院。",
+    keys:["有行為能力患者的書面拒絕醫療決定，在其失能後仍有效，家屬不能覆蓋","Category III FHR Tracing是緊急剖腹產的絕對指徵，不可延誤","多重合併症（PAS+重度子癇前症+DIC傾向）需多科整合，同步處置"]}
+};
+
+var DIFF_LABELS = {student:"🟢 醫學生", resident:"🟡 住院醫師", attending:"🔴 主治醫師"};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+var state = {diff:null, actIdx:0, phase:"choose", chosen:null, quizAns:null, score:0};
+
+function showScreen(id) {
+  ["screen-select","screen-game","screen-end"].forEach(function(s){
+    document.getElementById(s).classList.remove("active");
+  });
+  document.getElementById(id).classList.add("active");
+}
+
+function startGame(diff) {
+  state = {diff:diff, actIdx:0, phase:"choose", chosen:null, quizAns:null, score:0};
+  showScreen("screen-game");
+  render();
+}
+
+function resetGame() {
+  state = {diff:null, actIdx:0, phase:"choose", chosen:null, quizAns:null, score:0};
+  showScreen("screen-select");
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  var acts = ACTS[state.diff];
+  var act = acts[state.actIdx];
+  var scoreEl = document.getElementById("hdr-score");
+  scoreEl.textContent = state.score;
+  scoreEl.className = state.score >= 0 ? "score-positive" : "score-negative";
+  document.getElementById("hdr-diff").textContent = DIFF_LABELS[state.diff];
+  document.getElementById("hdr-diff").style.color = {student:"#16a34a",resident:"#ca8a04",attending:"#dc2626"}[state.diff];
+  document.getElementById("hdr-act").textContent = state.actIdx + 1;
+  document.getElementById("hdr-total").textContent = acts.length;
+  document.getElementById("act-title").textContent = act.title;
+  document.getElementById("act-scene").textContent = act.scene;
+  renderVitals(act.vitals);
+  renderOptions(act);
+  renderReport(act);
+  renderQuiz(act);
+}
+
+function renderVitals(vitals) {
+  var grid = document.getElementById("vitals-grid");
+  grid.innerHTML = "";
+  Object.keys(vitals).forEach(function(k) {
+    var v = vitals[k];
+    var warn = v.indexOf("⬇") >= 0 || v.indexOf("⬆") >= 0;
+    var cell = document.createElement("div");
+    cell.className = "vital-cell" + (warn ? " warn" : "");
+    cell.innerHTML = '<div class="vital-label">' + k + '</div><div class="vital-value' + (warn?" warn":"") + '">' + v + '</div>';
+    grid.appendChild(cell);
+  });
+}
+
+function renderOptions(act) {
+  var area = document.getElementById("options-area");
+  if (state.phase === "choose" || state.phase === "report") {
+    var html = '<div style="color:#94a3b8;font-size:12px;font-weight:600;margin-bottom:10px">請選擇處置：</div>';
+    act.options.forEach(function(opt) {
+      var cls = "opt-btn";
+      var extra = "";
+      if (state.chosen) {
+        if (opt.id === state.chosen && opt.correct) cls += " correct";
+        else if (opt.id === state.chosen && !opt.correct) cls += " wrong";
+        else if (opt.correct) cls += " show-correct";
+      }
+      var feedbackHtml = "";
+      if (state.chosen === opt.id) feedbackHtml = '<div style="margin-top:6px;font-size:12px;opacity:0.9">' + opt.feedback + '</div>';
+      if (state.chosen && opt.correct && state.chosen !== opt.id) feedbackHtml += '<div style="margin-top:6px;font-size:12px;color:#4ade80">← 正確答案</div>';
+      html += '<button class="' + cls + '" onclick="chooseOption(\'' + opt.id + '\')" ' + (state.chosen ? "disabled" : "") + '><span style="font-weight:700;margin-right:8px">' + opt.id + '.</span>' + opt.text + feedbackHtml + '</button>';
+    });
+    area.innerHTML = html;
+    area.style.display = "block";
+  } else {
+    area.style.display = "none";
+  }
+}
+
+function renderReport(act) {
+  var area = document.getElementById("report-area");
+  if (state.phase === "report") {
+    area.innerHTML = '<div class="report-box"><div style="color:#93c5fd;font-weight:700;font-size:13px;margin-bottom:8px">📋 ' + act.report.title + '</div><pre style="color:#e2e8f0;font-size:13px;line-height:1.7">' + act.report.content + '</pre><button class="btn-primary" style="margin-top:14px" onclick="goToQuiz()">繼續判讀 →</button></div>';
+    area.style.display = "block";
+  } else {
+    area.style.display = "none";
+  }
+}
+
+function renderQuiz(act) {
+  var area = document.getElementById("quiz-area");
+  if (state.phase === "quiz") {
+    var html = '<div class="card"><div style="color:#fbbf24;font-weight:700;font-size:13px;margin-bottom:10px">📝 判讀題</div><p style="color:#e2e8f0;font-size:14px;margin-bottom:14px;line-height:1.6">' + act.quiz.q + '</p>';
+    act.quiz.opts.forEach(function(o, i) {
+      var cls = "quiz-btn";
+      if (state.quizAns !== null) {
+        if (i === state.quizAns && i === act.quiz.ans) cls += " correct";
+        else if (i === state.quizAns && i !== act.quiz.ans) cls += " wrong";
+        else if (i === act.quiz.ans) cls += " show-correct";
+      }
+      html += '<button class="' + cls + '" onclick="answerQuiz(' + i + ')" ' + (state.quizAns !== null ? "disabled" : "") + '>' + String.fromCharCode(65+i) + '. ' + o + '</button>';
+    });
+    if (state.quizAns !== null) {
+      var acts = ACTS[state.diff];
+      var isLast = state.actIdx + 1 >= acts.length;
+      html += '<div class="explain-box">📚 ' + act.quiz.explain + '</div>';
+      html += '<button class="btn-next" onclick="nextAct()">' + (isLast ? "查看結果 →" : "前往第" + (state.actIdx+2) + "幕 →") + '</button>';
+    }
+    html += '</div>';
+    area.innerHTML = html;
+    area.style.display = "block";
+  } else {
+    area.style.display = "none";
+  }
+}
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────────
+function chooseOption(id) {
+  if (state.chosen) return;
+  var act = ACTS[state.diff][state.actIdx];
+  var opt = act.options.find(function(o){return o.id===id;});
+  state.chosen = id;
+  state.score += opt.correct ? 10 : -5;
+  state.phase = "report";
+  render();
+}
+
+function goToQuiz() {
+  state.phase = "quiz";
+  render();
+}
+
+function answerQuiz(i) {
+  if (state.quizAns !== null) return;
+  var act = ACTS[state.diff][state.actIdx];
+  state.quizAns = i;
+  state.score += (i === act.quiz.ans) ? 10 : -5;
+  render();
+}
+
+function nextAct() {
+  var acts = ACTS[state.diff];
+  if (state.actIdx + 1 < acts.length) {
+    state.actIdx++;
+    state.phase = "choose";
+    state.chosen = null;
+    state.quizAns = null;
+    render();
+  } else {
+    showEndScreen();
+  }
+}
+
+function showEndScreen() {
+  var e = ENDINGS[state.diff];
+  var maxScore = ACTS[state.diff].length * 20;
+  var pct = Math.round((state.score / maxScore) * 100);
+  document.getElementById("end-icon").textContent = e.icon;
+  document.getElementById("end-title").textContent = e.title;
+  document.getElementById("end-body").textContent = e.body;
+  var scoreEl = document.getElementById("end-score");
+  scoreEl.textContent = state.score + " / " + maxScore;
+  scoreEl.style.color = pct >= 60 ? "#4ade80" : "#f87171";
+  document.getElementById("end-pct").textContent = pct + "%";
+  var keysEl = document.getElementById("end-keys");
+  keysEl.innerHTML = e.keys.map(function(k){return '<div class="takeaway">✓ ' + k + '</div>';}).join("");
+  showScreen("screen-end");
+}
+</script>
+</body>
+</html>
